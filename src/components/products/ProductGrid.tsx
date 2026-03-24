@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
+import { nameToSlug } from "@/data/products";
 
 interface Product {
   name: string;
