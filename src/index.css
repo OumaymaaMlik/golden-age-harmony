@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,63 +6,40 @@
 
 @layer base {
   :root {
-    --background: 40 33% 98%;
-    --foreground: 220 44% 20%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 44% 20%;
+    --card-foreground: 0 0% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 44% 20%;
+    --popover-foreground: 0 0% 4%;
 
-    --primary: 220 44% 20%;
+    --primary: 196 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 45 100% 51%;
-    --secondary-foreground: 220 44% 20%;
+    --secondary: 147 100% 37%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 40 20% 94%;
-    --muted-foreground: 220 15% 45%;
+    --muted: 160 30% 96%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 0 70% 55%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 167 82% 55%;
+    --accent-foreground: 0 0% 4%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 40 20% 88%;
-    --input: 40 20% 88%;
-    --ring: 220 44% 20%;
+    --border: 160 20% 90%;
+    --input: 160 20% 90%;
+    --ring: 196 100% 50%;
 
     --radius: 0.75rem;
 
-    --brand-yellow: 45 100% 51%;
-    --brand-red: 0 70% 55%;
-    --brand-navy: 220 44% 20%;
-    --brand-warm-white: 40 33% 98%;
-    --brand-cream: 40 30% 95%;
-  }
-
-  .dark {
-    --background: 220 44% 10%;
-    --foreground: 40 33% 98%;
-    --card: 220 44% 14%;
-    --card-foreground: 40 33% 98%;
-    --popover: 220 44% 14%;
-    --popover-foreground: 40 33% 98%;
-    --primary: 45 100% 51%;
-    --primary-foreground: 220 44% 20%;
-    --secondary: 220 30% 25%;
-    --secondary-foreground: 40 33% 98%;
-    --muted: 220 30% 18%;
-    --muted-foreground: 40 15% 65%;
-    --accent: 0 70% 55%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 220 30% 22%;
-    --input: 220 30% 22%;
-    --ring: 45 100% 51%;
+    --brand-blue: 196 100% 50%;
+    --brand-green: 147 100% 37%;
+    --brand-teal: 167 82% 55%;
+    --brand-dark: 160 40% 5%;
   }
 }
 
@@ -101,6 +78,6 @@
   }
 
   .decorative-dot {
-    @apply absolute rounded-full opacity-20;
+    @apply absolute rounded-full opacity-15;
   }
 }

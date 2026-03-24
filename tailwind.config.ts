@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ["Merriweather", "Georgia", "serif"],
-        body: ["Source Sans 3", "system-ui", "sans-serif"],
+        heading: ["Open Sans", "system-ui", "sans-serif"],
+        body: ["Open Sans", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -52,11 +52,10 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         brand: {
-          yellow: "hsl(var(--brand-yellow))",
-          red: "hsl(var(--brand-red))",
-          navy: "hsl(var(--brand-navy))",
-          cream: "hsl(var(--brand-cream))",
-          "warm-white": "hsl(var(--brand-warm-white))",
+          blue: "hsl(var(--brand-blue))",
+          green: "hsl(var(--brand-green))",
+          teal: "hsl(var(--brand-teal))",
+          dark: "hsl(var(--brand-dark))",
         },
       },
       borderRadius: {

@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Phone, HeadphonesIcon, ShieldCheck } from "lucide-react";
+import { Menu, X, Search, Phone, ShieldCheck } from "lucide-react";
+import NutriwellLogo from "./NutriwellLogo";
 
-const navLinks = ["Products", "Recipes", "Health Tips", "About Us"];
+const navLinks = [
+  { label: "Nos Produits", href: "#products" },
+  { label: "Conseils Nutritionnels", href: "#info" },
+  { label: "Pour les Professionnels", href: "#benefits" },
+  { label: "À Propos", href: "#about" },
+];
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -15,81 +21,69 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-primary/95 backdrop-blur-md shadow-lg py-3"
-          : "bg-transparent py-5"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background ${
+        scrolled ? "shadow-md py-3 border-b border-accent/40" : "py-4 border-b border-accent/20"
       }`}
     >
       <div className="container mx-auto flex items-center justify-between px-6">
-        {/* Logo */}
-        <a href="#" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-            <span className="font-heading text-secondary-foreground font-bold text-lg">N</span>
-          </div>
-          <span className="font-heading text-xl font-bold text-primary-foreground">
-            NourishLife
-          </span>
+        <a href="#" className="flex items-center">
+          <NutriwellLogo variant="dark" />
         </a>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
             <a
-              key={link}
-              href={`#${link.toLowerCase().replace(/\s/g, "-")}`}
-              className="text-primary-foreground/80 hover:text-secondary font-medium transition-colors duration-200 text-[15px]"
+              key={link.label}
+              href={link.href}
+              className="text-foreground/70 hover:text-primary font-medium transition-colors duration-200 text-[15px]"
             >
-              {link}
+              {link.label}
             </a>
           ))}
         </nav>
 
-        {/* Utility Icons */}
-        <div className="hidden md:flex items-center gap-5">
-          <a href="#" className="text-primary-foreground/70 hover:text-secondary transition-colors" aria-label="Support">
-            <HeadphonesIcon size={20} />
+        <div className="hidden lg:flex items-center gap-5">
+          <a href="#" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Rechercher">
+            <Search size={20} />
           </a>
-          <a href="#" className="text-primary-foreground/70 hover:text-secondary transition-colors" aria-label="Contact">
+          <a href="#" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Contact">
             <Phone size={20} />
           </a>
           <a
             href="#"
-            className="flex items-center gap-1.5 text-sm font-semibold text-secondary bg-secondary/15 px-3 py-1.5 rounded-full hover:bg-secondary/25 transition-colors"
+            className="flex items-center gap-1.5 text-sm font-semibold text-primary-foreground bg-primary px-4 py-2 rounded-full hover:bg-primary/90 transition-colors"
           >
             <ShieldCheck size={16} />
-            Pro Access
+            Accès Pro
           </a>
         </div>
 
-        {/* Mobile Toggle */}
         <button
-          className="md:hidden text-primary-foreground"
+          className="lg:hidden text-foreground"
           onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
+          aria-label="Ouvrir le menu"
         >
           {mobileOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-primary/98 backdrop-blur-md border-t border-primary-foreground/10 px-6 py-6 space-y-4">
+        <div className="lg:hidden bg-background border-t border-accent/20 px-6 py-6 space-y-4">
           {navLinks.map((link) => (
             <a
-              key={link}
-              href={`#${link.toLowerCase().replace(/\s/g, "-")}`}
-              className="block text-primary-foreground/80 hover:text-secondary font-medium text-lg"
+              key={link.label}
+              href={link.href}
+              className="block text-foreground/70 hover:text-primary font-medium text-lg"
               onClick={() => setMobileOpen(false)}
             >
-              {link}
+              {link.label}
             </a>
           ))}
-          <div className="flex items-center gap-4 pt-4 border-t border-primary-foreground/10">
-            <a href="#" className="text-primary-foreground/70 hover:text-secondary"><HeadphonesIcon size={20} /></a>
-            <a href="#" className="text-primary-foreground/70 hover:text-secondary"><Phone size={20} /></a>
-            <a href="#" className="flex items-center gap-1.5 text-sm font-semibold text-secondary">
-              <ShieldCheck size={16} /> Pro Access
+          <div className="flex items-center gap-4 pt-4 border-t border-border">
+            <a href="#" className="text-foreground/50 hover:text-primary"><Search size={20} /></a>
+            <a href="#" className="text-foreground/50 hover:text-primary"><Phone size={20} /></a>
+            <a href="#" className="flex items-center gap-1.5 text-sm font-semibold text-primary-foreground bg-primary px-4 py-2 rounded-full">
+              <ShieldCheck size={16} /> Accès Pro
             </a>
           </div>
         </div>
