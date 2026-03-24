@@ -48,28 +48,28 @@ const ProductGrid = ({ activeTexture, activeGout, activeRegime }: Props) => {
   });
 
   return (
-    <section className="bg-background py-12">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <section className="bg-background py-10">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {filtered.map((product, i) => (
-            <ScrollReveal key={product.name} delay={Math.min(i * 0.05, 0.3)}>
-              <div className="group bg-card rounded-2xl border border-border shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-200 overflow-hidden cursor-pointer">
-                <div className="relative bg-muted/30 p-6 flex items-center justify-center aspect-square">
+            <ScrollReveal key={product.name} delay={Math.min(i * 0.04, 0.25)}>
+              <div className="group bg-card rounded-xl border border-border shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer">
+                <div className="relative bg-muted/30 p-3 flex items-center justify-center aspect-[4/3]">
                   {product.badge && (
-                    <span className={`absolute top-4 left-4 ${product.badgeColor} text-primary-foreground text-xs font-bold px-3 py-1 rounded-full`}>
+                    <span className={`absolute top-2 left-2 ${product.badgeColor} text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full`}>
                       {product.badge}
                     </span>
                   )}
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover rounded-xl"
+                    className="w-full h-full object-cover rounded-lg"
                     loading="lazy"
                   />
                 </div>
-                <div className="p-5">
-                  <p className="text-xs text-muted-foreground mb-1">{product.flavors}</p>
-                  <h3 className="font-heading font-bold text-foreground text-base group-hover:text-primary transition-colors">
+                <div className="px-3 py-3">
+                  <p className="text-[11px] text-muted-foreground mb-0.5">{product.flavors}</p>
+                  <h3 className="font-heading font-bold text-foreground text-sm group-hover:text-primary transition-colors leading-snug">
                     {product.name}
                   </h3>
                 </div>
