@@ -57,13 +57,13 @@ const ProductGrid = ({ activeTexture, activeGout, activeRegime }: Props) => {
   });
 
   return (
-    <section className="bg-background py-16">
+    <section className="bg-background py-10">
       <div className="container mx-auto px-8 lg:px-12">
         <div className="grid grid-cols-3 gap-6 auto-rows-max">
           {filtered.map((product, i) => (
-            <ScrollReveal key={product.name} delay={Math.min(i * 0.04, 0.25)} style={{ height: '470px', flexGrow: 0 }}>
+            <ScrollReveal key={product.name} delay={Math.min(i * 0.04, 0.25)} style={{ height: '400px', flexGrow: 0 }}>
               <Link to={`/products/${nameToSlug[product.name] || "boisson-fruitee"}`}>
-                <div className="group bg-card border border-dashed shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer p-5 flex flex-col h-full" style={{ borderColor: 'rgba(255, 255, 255, 1)', backgroundColor: '#c8effc', borderTopLeftRadius: '120px', borderTopRightRadius: '0px', borderBottomRightRadius: '120px', borderBottomLeftRadius: '0px', height: '470px' }}>
+                <div className="group bg-card border border-dashed shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer p-5 flex flex-col h-full" style={{ borderColor: 'rgba(255, 255, 255, 1)', borderTopLeftRadius: '120px', borderTopRightRadius: '0px', borderBottomRightRadius: '120px', borderBottomLeftRadius: '0px', height: '400px' }}>
                   <div className="relative flex items-center justify-center aspect-[5/7] mb-4 overflow-hidden flex-1" style={{ backgroundColor: '#c8effc', borderTopLeftRadius: '120px', borderTopRightRadius: '0px', borderBottomRightRadius: '120px', borderBottomLeftRadius: '0px' }}>
                     <img
                       src={product.image}
@@ -75,7 +75,7 @@ const ProductGrid = ({ activeTexture, activeGout, activeRegime }: Props) => {
                   </div>
                   <div className="space-y-1">
                     <p className="text-[11px] text-muted-foreground" style={{ fontSize: '14px', fontWeight: '600' }}>{product.flavors}</p>
-                    <h3 className="font-heading font-bold text-foreground text-sm group-hover:text-primary transition-colors leading-snug" style={{ fontSize: '22px' }}>
+                    <h3 className="font-heading font-semibold text-foreground text-[20px] group-hover:text-primary transition-colors leading-snug">
                       {product.name}
                     </h3>
                   </div>

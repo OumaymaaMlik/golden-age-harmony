@@ -42,20 +42,20 @@ const DropdownPill = ({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className={`flex items-center gap-2 px-5 py-2.5 rounded-full border-2 text-sm font-semibold transition-all duration-200 ${
+        className={`flex items-center gap-2 px-6 py-3 rounded-full border-2 text-base font-semibold transition-all duration-200 ${
           value
             ? "border-primary bg-primary/10 text-primary"
             : "border-primary/30 bg-background text-foreground hover:border-primary"
         }`}
       >
         {value || label}
-        <ChevronDown size={16} className={`transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown size={18} className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div className="absolute top-full mt-2 left-0 bg-background border border-border rounded-xl shadow-lg z-50 min-w-[180px] py-2">
           <button
             onClick={() => { onChange(""); setOpen(false); }}
-            className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:bg-muted transition-colors"
+            className="w-full text-left px-5 py-3 text-base text-muted-foreground hover:bg-muted transition-colors"
           >
             Tous
           </button>
@@ -63,7 +63,7 @@ const DropdownPill = ({
             <button
               key={opt}
               onClick={() => { onChange(opt); setOpen(false); }}
-              className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+              className={`w-full text-left px-5 py-3 text-base transition-colors ${
                 value === opt ? "text-primary font-semibold bg-primary/5" : "text-foreground hover:bg-muted"
               }`}
             >
@@ -96,7 +96,7 @@ const FilterBar = ({
             setActiveGout("");
             setActiveRegime("");
           }}
-          className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-200 ${
+          className={`px-8 py-3 rounded-full text-base font-bold transition-all duration-200 ${
             activeFilter === "all" && !activeTexture && !activeGout && !activeRegime
               ? "bg-secondary text-secondary-foreground shadow-md"
               : "bg-secondary/10 text-secondary hover:bg-secondary/20"

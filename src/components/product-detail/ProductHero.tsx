@@ -35,16 +35,12 @@ const ProductHero = ({ product }: Props) => {
           {/* Left — Image Gallery */}
           <ScrollReveal>
             <div className="space-y-4">
-              <div className="relative bg-card rounded-2xl shadow-sm border border-border p-6 flex items-center justify-center aspect-square max-w-md mx-auto">
-                {product.badge && (
-                  <span className={`absolute top-4 left-4 ${product.badgeColor} text-primary-foreground text-xs font-bold px-3 py-1 rounded-full`}>
-                    {product.badge}
-                  </span>
-                )}
+              <div className="relative bg-card border border-dashed shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200 overflow-hidden p-5 flex items-center justify-center aspect-square max-w-md mx-auto" style={{ backgroundColor: '#c8effc', borderColor: 'rgba(255, 255, 255, 1)', borderTopLeftRadius: '120px', borderTopRightRadius: '0px', borderBottomRightRadius: '120px', borderBottomLeftRadius: '0px' }}>
+
                 <img
                   src={product.images[selectedImage]}
                   alt={product.name}
-                  className="w-full h-full object-cover rounded-xl"
+                  className="w-full h-full object-cover"
                 />
               </div>
               {product.images.length > 1 && (
