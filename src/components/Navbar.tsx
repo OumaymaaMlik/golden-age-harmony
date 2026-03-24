@@ -49,13 +49,6 @@ const Navbar = () => {
           <a href="#" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Contact">
             <Phone size={20} />
           </a>
-          <a
-            href="#"
-            className="flex items-center gap-1.5 text-sm font-semibold text-primary-foreground bg-primary px-4 py-2 rounded-full hover:bg-primary/90 transition-colors"
-          >
-            <ShieldCheck size={16} />
-            Accès Pro
-          </a>
         </div>
 
         <button
