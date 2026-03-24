@@ -86,9 +86,9 @@ const FilterBar = ({
   activeRegime,
   setActiveRegime,
 }: FilterBarProps) => (
-  <div className="sticky top-[60px] z-40 bg-background border-b-2 border-accent/30 py-4">
+  <div className="sticky top-[60px] z-40 bg-background border-b-2 border-accent/30 py-4 flex flex-col justify-center items-center text-center">
     <div className="container mx-auto px-6">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 justify-center">
         <button
           onClick={() => {
             setActiveFilter("all");

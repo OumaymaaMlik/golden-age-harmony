@@ -125,9 +125,6 @@ const ProductHero = ({ product }: Props) => {
 
               {/* CTAs */}
               <div className="flex flex-col gap-3 pt-1">
-                <Button className="w-full rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 active:scale-[0.98] transition-all text-base py-5">
-                  Ajouter au panier
-                </Button>
                 <Button variant="outline" className="w-full rounded-full border-primary text-primary hover:bg-primary/5 text-base py-5">
                   Trouver en pharmacie
                 </Button>
@@ -136,9 +133,7 @@ const ProductHero = ({ product }: Props) => {
               {/* Trust Badges */}
               <div className="flex items-center justify-between pt-2 border-t border-border">
                 {[
-                  { icon: Truck, label: "Livraison rapide" },
                   { icon: ShieldCheck, label: "Qualité certifiée" },
-                  { icon: Lock, label: "Paiement sécurisé" },
                 ].map(({ icon: Icon, label }) => (
                   <div key={label} className="flex items-center gap-1.5 text-muted-foreground">
                     <Icon size={16} className="text-primary" />
