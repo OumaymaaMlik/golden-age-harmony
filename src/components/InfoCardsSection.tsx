@@ -44,7 +44,7 @@ const InfoCardsSection = () => {
                   />
                 </div>
                 <div className="p-6">
-                  <h3 className="font-heading text-lg font-bold text-secondary mb-3">
+                  <h3 className="font-heading text-lg font-bold mb-3 text-black">
                     {card.title}
                   </h3>
                   <a
