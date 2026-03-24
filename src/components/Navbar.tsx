@@ -82,9 +82,6 @@ const Navbar = () => {
           <div className="flex items-center gap-4 pt-4 border-t border-border">
             <a href="#" className="text-foreground/50 hover:text-primary"><Search size={20} /></a>
             <a href="#" className="text-foreground/50 hover:text-primary"><Phone size={20} /></a>
-            <a href="#" className="flex items-center gap-1.5 text-sm font-semibold text-primary-foreground bg-primary px-4 py-2 rounded-full">
-              <ShieldCheck size={16} /> Accès Pro
-            </a>
           </div>
         </div>
       )}
