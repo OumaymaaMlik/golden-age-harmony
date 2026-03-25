@@ -1,13 +1,17 @@
 import { Link } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
-import { getRelatedProducts } from "@/data/products";
+import { useQuery } from "@tanstack/react-query";
+import { fetchRelatedProducts } from "@/lib/product-service";
 
 interface Props {
   currentSlug: string;
 }
 
 const RelatedProducts = ({ currentSlug }: Props) => {
-  const related = getRelatedProducts(currentSlug);
+  const { data: related = [] } = useQuery({
+    queryKey: ["related-products", currentSlug],
+    queryFn: () => fetchRelatedProducts(currentSlug),
+  });
 
   if (related.length === 0) return null;
 

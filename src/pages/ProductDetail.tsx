@@ -7,13 +7,29 @@ import ProductTabs from "@/components/product-detail/ProductTabs";
 import UsageBanner from "@/components/product-detail/UsageBanner";
 import RelatedProducts from "@/components/product-detail/RelatedProducts";
 import WaveDivider from "@/components/WaveDivider";
-import { getProductBySlug } from "@/data/products";
+import { useQuery } from "@tanstack/react-query";
+import { fetchProductBySlug } from "@/lib/product-service";
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const product = slug ? getProductBySlug(slug) : undefined;
+  const { data: product, isLoading } = useQuery({
+    queryKey: ["product-detail", slug],
+    queryFn: () => fetchProductBySlug(slug ?? ""),
+    enabled: Boolean(slug),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="pt-24 text-center">
+          <p className="text-muted-foreground text-lg">Chargement du produit...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) return <Navigate to="/products" replace />;
 
