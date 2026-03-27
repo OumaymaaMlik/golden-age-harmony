@@ -81,9 +81,9 @@ const Navbar = () => {
         </nav>
 
         <div className="hidden lg:flex items-center gap-5">
-          <a href="#" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Rechercher">
-            <Search size={20} />
-          </a>
+          <Link to="/store-locator" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Trouver une pharmacie">
+            <MapPin size={20} />
+          </Link>
           <a href="#" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Contact">
             <Phone size={20} />
           </a>
