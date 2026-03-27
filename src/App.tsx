@@ -7,6 +7,7 @@ import Index from "./pages/Index.tsx";
 import Products from "./pages/Products.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import About from "./pages/About.tsx";
 import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import AdminProducts from "./pages/admin/AdminProducts.tsx";
 import AdminProductEditor from "./pages/admin/AdminProductEditor.tsx";
@@ -22,6 +23,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/about" element={<About />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:slug" element={<ProductDetail />} />
           <Route path="/admin/login" element={<AdminLogin />} />
