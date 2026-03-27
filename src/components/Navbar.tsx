@@ -5,7 +5,7 @@ import NutriwellLogo from "./NutriwellLogo";
 
 const navLinks = [
   { label: "Nos Produits", href: "/products" },
-  { label: "Conseils Nutritionnels", href: "/#info" },
+  { label: "Qui Sommes-Nous", href: "/about" },
   { label: "Pour les Professionnels", href: "/#benefits" },
   { label: "À Propos", href: "/#about" },
 ];
