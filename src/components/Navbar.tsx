@@ -122,7 +122,7 @@ const Navbar = () => {
             )
           )}
           <div className="flex items-center gap-4 pt-4 border-t border-border">
-            <a href="#" className="text-foreground/50 hover:text-primary"><Search size={20} /></a>
+            <Link to="/store-locator" className="text-foreground/50 hover:text-primary" onClick={() => setMobileOpen(false)}><MapPin size={20} /></Link>
             <a href="#" className="text-foreground/50 hover:text-primary"><Phone size={20} /></a>
           </div>
         </div>
