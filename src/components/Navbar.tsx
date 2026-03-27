@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Search, Phone } from "lucide-react";
+import { Menu, X, MapPin, Phone } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import NutriwellLogo from "./NutriwellLogo";
 
