@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Search, Phone } from "lucide-react";
+import { Menu, X, MapPin, Phone } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import NutriwellLogo from "./NutriwellLogo";
 
@@ -81,9 +81,9 @@ const Navbar = () => {
         </nav>
 
         <div className="hidden lg:flex items-center gap-5">
-          <a href="#" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Rechercher">
-            <Search size={20} />
-          </a>
+          <Link to="/store-locator" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Trouver une pharmacie">
+            <MapPin size={20} />
+          </Link>
           <a href="#" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Contact">
             <Phone size={20} />
           </a>
@@ -122,7 +122,7 @@ const Navbar = () => {
             )
           )}
           <div className="flex items-center gap-4 pt-4 border-t border-border">
-            <a href="#" className="text-foreground/50 hover:text-primary"><Search size={20} /></a>
+            <Link to="/store-locator" className="text-foreground/50 hover:text-primary" onClick={() => setMobileOpen(false)}><MapPin size={20} /></Link>
             <a href="#" className="text-foreground/50 hover:text-primary"><Phone size={20} /></a>
           </div>
         </div>
