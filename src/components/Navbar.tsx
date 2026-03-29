@@ -84,9 +84,9 @@ const Navbar = () => {
           <Link to="/store-locator" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Trouver une pharmacie">
             <MapPin size={20} />
           </Link>
-          <a href="#" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Contact">
+          <Link to="/contact" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Contact">
             <Phone size={20} />
-          </a>
+          </Link>
         </div>
 
         <button
