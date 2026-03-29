@@ -321,7 +321,7 @@ const Contact = () => {
         </div>
       </section>
 
-      <WaveDivider from="muted" to="background" />
+      <WaveDivider fillColor="hsl(var(--background))" />
 
       {/* Benefits Strip */}
       <section className="py-14">
