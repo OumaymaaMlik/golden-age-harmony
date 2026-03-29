@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WaveDivider from "@/components/WaveDivider";
 import ScrollReveal from "@/components/ScrollReveal";
-import { Phone, Shield, Clock, ChevronRight, Upload, CheckSquare } from "lucide-react";
+import { Phone, Shield, Clock, ChevronRight, Upload, CheckSquare, Mail, MessageSquare, User } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const subjectOptions = [
@@ -76,30 +76,39 @@ const Contact = () => {
   };
 
   const inputClass =
-    "w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all";
+    "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200";
   const selectClass =
-    "w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all appearance-none";
+    "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 appearance-none";
   const labelClass = "block text-sm font-semibold text-foreground mb-1.5";
-  const errorClass = "text-xs text-destructive mt-1";
+  const errorClass = "text-xs text-destructive mt-1 font-medium";
 
   return (
     <div className="min-h-screen bg-background font-body">
       <Navbar />
 
-      {/* Breadcrumb + Title */}
-      <section className="pt-28 pb-12 bg-muted">
-        <div className="container mx-auto px-6">
-          <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+      {/* Hero Header */}
+      <section className="pt-28 pb-16 bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 relative overflow-hidden">
+        {/* Decorative circles */}
+        <div className="absolute top-10 right-[15%] w-32 h-32 rounded-full bg-primary/5 blur-2xl" />
+        <div className="absolute bottom-0 left-[10%] w-48 h-48 rounded-full bg-secondary/5 blur-3xl" />
+
+        <div className="container mx-auto px-6 relative z-10">
+          <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
             <Link to="/" className="hover:text-primary transition-colors">Accueil</Link>
             <ChevronRight size={14} />
             <span className="text-foreground font-medium">Contactez-nous</span>
           </nav>
           <ScrollReveal>
-            <div className="flex items-center gap-3">
-              <div className="w-1.5 h-10 rounded-full bg-primary" />
-              <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
+            <div className="text-center max-w-2xl mx-auto">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6">
+                <Mail className="text-primary" size={28} />
+              </div>
+              <h1 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
                 Contactez-nous
               </h1>
+              <p className="text-muted-foreground text-lg leading-relaxed">
+                Notre équipe est à votre écoute. Remplissez le formulaire ci-dessous et nous vous répondrons dans les meilleurs délais.
+              </p>
             </div>
           </ScrollReveal>
         </div>
@@ -107,188 +116,200 @@ const Contact = () => {
 
       <WaveDivider fillColor="hsl(var(--background))" />
 
-      {/* Instruction */}
-      <section className="py-6">
-        <div className="container mx-auto px-6 text-center">
-          <p className="text-muted-foreground text-sm">
-            Les champs marqués d'un <span className="text-destructive font-bold">*</span> sont obligatoires. Nous vous répondrons dans les plus brefs délais.
-          </p>
-        </div>
-      </section>
-
       {/* Contact Form */}
-      <section id="contact-form" className="pb-16">
+      <section id="contact-form" className="py-16">
         <div className="container mx-auto px-6">
           {submitted ? (
             <ScrollReveal>
-              <div className="max-w-xl mx-auto text-center py-16">
-                <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mx-auto mb-4">
-                  <CheckSquare className="text-secondary" size={28} />
+              <div className="max-w-xl mx-auto text-center py-20">
+                <div className="w-20 h-20 rounded-full bg-secondary/15 flex items-center justify-center mx-auto mb-6">
+                  <CheckSquare className="text-secondary" size={32} />
                 </div>
-                <h2 className="font-heading text-2xl font-bold text-foreground mb-3">Message envoyé !</h2>
-                <p className="text-muted-foreground">Merci pour votre message. Notre équipe vous répondra sous 48h ouvrées.</p>
+                <h2 className="font-heading text-3xl font-bold text-foreground mb-4">Message envoyé !</h2>
+                <p className="text-muted-foreground text-lg mb-8">Merci pour votre message. Notre équipe vous répondra sous 48h ouvrées.</p>
+                <Link to="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors">
+                  Retour à l'accueil
+                </Link>
               </div>
             </ScrollReveal>
           ) : (
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-0 max-w-5xl mx-auto">
+            <form onSubmit={handleSubmit} className="max-w-5xl mx-auto">
+              {/* Instruction */}
+              <div className="text-center mb-10">
+                <p className="text-muted-foreground text-sm">
+                  Les champs marqués d'un <span className="text-destructive font-bold">*</span> sont obligatoires.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 {/* LEFT COLUMN — Message */}
-                <div className="space-y-5">
-                  {/* Subject */}
-                  <div>
-                    <label className={labelClass}>Sujet <span className="text-destructive">*</span></label>
-                    <select value={subject} onChange={(e) => setSubject(e.target.value)} className={selectClass}>
-                      <option value="">— Sélectionnez un sujet —</option>
-                      {subjectOptions.map((o) => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                    {errors.subject && <p className={errorClass}>{errors.subject}</p>}
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <MessageSquare size={18} className="text-primary" />
+                    <h2 className="font-heading text-lg font-bold text-foreground">Votre message</h2>
                   </div>
-
-                  {/* Message */}
-                  <div>
-                    <label className={labelClass}>Votre message <span className="text-destructive">*</span></label>
-                    <textarea
-                      rows={7}
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Décrivez votre demande en détail…"
-                      className={`${inputClass} min-h-[180px] resize-y`}
-                    />
-                    {errors.message && <p className={errorClass}>{errors.message}</p>}
-                  </div>
-
-                  {/* File Upload */}
-                  <div>
-                    <label className={labelClass}>Pièce jointe</label>
-                    <div className="flex items-center gap-3">
-                      <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/10 text-primary font-medium text-sm cursor-pointer hover:bg-primary/20 transition-colors">
-                        <Upload size={16} />
-                        Choisir un fichier
-                        <input type="file" className="hidden" onChange={handleFileChange} accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
-                      </label>
-                      <span className="text-sm text-muted-foreground truncate max-w-[200px]">
-                        {fileName || "Aucun fichier sélectionné"}
-                      </span>
+                  <div className="bg-card rounded-2xl border border-border p-6 space-y-5 shadow-sm">
+                    {/* Subject */}
+                    <div>
+                      <label className={labelClass}>Sujet <span className="text-destructive">*</span></label>
+                      <select value={subject} onChange={(e) => setSubject(e.target.value)} className={selectClass}>
+                        <option value="">— Sélectionnez un sujet —</option>
+                        {subjectOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                      {errors.subject && <p className={errorClass}>{errors.subject}</p>}
                     </div>
-                  </div>
 
-                  {/* File format info */}
-                  <div className="rounded-lg bg-primary/5 border border-primary/20 p-4 text-sm text-muted-foreground">
-                    <p className="font-semibold text-foreground mb-1">Formats acceptés :</p>
-                    <p>PDF, JPG, PNG, DOC, DOCX — Taille max : 5 Mo</p>
-                  </div>
+                    {/* Message */}
+                    <div>
+                      <label className={labelClass}>Message <span className="text-destructive">*</span></label>
+                      <textarea
+                        rows={6}
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Décrivez votre demande en détail…"
+                        className={`${inputClass} min-h-[160px] resize-y`}
+                      />
+                      {errors.message && <p className={errorClass}>{errors.message}</p>}
+                    </div>
 
-                  {/* Warning */}
-                  <div className="rounded-lg bg-destructive/5 border border-destructive/20 p-4 text-sm text-destructive/80">
-                    <p className="font-semibold mb-1">⚠ Données sensibles</p>
-                    <p>Ne transmettez jamais de numéros de carte bancaire, mots de passe ou données médicales confidentielles via ce formulaire.</p>
+                    {/* File Upload */}
+                    <div>
+                      <label className={labelClass}>Pièce jointe</label>
+                      <div className="flex items-center gap-3">
+                        <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/10 text-primary font-medium text-sm cursor-pointer hover:bg-primary/20 transition-colors border border-primary/20">
+                          <Upload size={15} />
+                          Choisir un fichier
+                          <input type="file" className="hidden" onChange={handleFileChange} accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+                        </label>
+                        <span className="text-sm text-muted-foreground truncate max-w-[180px]">
+                          {fileName || "Aucun fichier"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* File format info */}
+                    <div className="rounded-xl bg-accent/5 border border-accent/20 p-4 text-sm text-muted-foreground">
+                      <p className="font-semibold text-foreground text-xs uppercase tracking-wide mb-1">Formats acceptés</p>
+                      <p className="text-xs">PDF, JPG, PNG, DOC, DOCX — Max 5 Mo</p>
+                    </div>
+
+                    {/* Warning */}
+                    <div className="rounded-xl bg-destructive/5 border border-destructive/15 p-4 text-xs text-destructive/80">
+                      <p className="font-semibold mb-0.5">⚠ Données sensibles</p>
+                      <p>Ne transmettez jamais de numéros de carte bancaire, mots de passe ou données médicales confidentielles.</p>
+                    </div>
                   </div>
                 </div>
 
                 {/* RIGHT COLUMN — Identity */}
-                <div className="space-y-5 mt-5 lg:mt-0">
-                  {/* Email */}
-                  <div>
-                    <label className={labelClass}>Email <span className="text-destructive">*</span></label>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="votre@email.com" className={inputClass} />
-                    {errors.email && <p className={errorClass}>{errors.email}</p>}
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <User size={18} className="text-secondary" />
+                    <h2 className="font-heading text-lg font-bold text-foreground">Vos coordonnées</h2>
                   </div>
-
-                  {/* Profile type */}
-                  <div>
-                    <label className={labelClass}>Type de profil</label>
-                    <select value={profileType} onChange={(e) => setProfileType(e.target.value)} className={selectClass}>
-                      <option value="">— Sélectionnez —</option>
-                      {profileOptions.map((o) => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  </div>
-
-                  {/* Civility */}
-                  <div>
-                    <label className={labelClass}>Civilité</label>
-                    <select value={civility} onChange={(e) => setCivility(e.target.value)} className={selectClass}>
-                      <option value="">— Sélectionnez —</option>
-                      {civilityOptions.map((o) => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  </div>
-
-                  {/* Last name + First name */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-card rounded-2xl border border-border p-6 space-y-5 shadow-sm">
+                    {/* Email */}
                     <div>
-                      <label className={labelClass}>Nom <span className="text-destructive">*</span></label>
-                      <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Votre nom" className={inputClass} />
-                      {errors.lastName && <p className={errorClass}>{errors.lastName}</p>}
+                      <label className={labelClass}>Email <span className="text-destructive">*</span></label>
+                      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="votre@email.com" className={inputClass} />
+                      {errors.email && <p className={errorClass}>{errors.email}</p>}
                     </div>
+
+                    {/* Profile type */}
                     <div>
-                      <label className={labelClass}>Prénom <span className="text-destructive">*</span></label>
-                      <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Votre prénom" className={inputClass} />
-                      {errors.firstName && <p className={errorClass}>{errors.firstName}</p>}
-                    </div>
-                  </div>
-
-                  {/* Address */}
-                  <div>
-                    <label className={labelClass}>Adresse complète</label>
-                    <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Numéro et nom de rue" className={inputClass} />
-                  </div>
-
-                  {/* Postal + City */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className={labelClass}>Code postal</label>
-                      <input type="text" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="75001" className={inputClass} />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Ville</label>
-                      <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Paris" className={inputClass} />
-                    </div>
-                  </div>
-
-                  {/* Country */}
-                  <div>
-                    <label className={labelClass}>Pays</label>
-                    <select value={country} onChange={(e) => setCountry(e.target.value)} className={selectClass}>
-                      <option value="">— Sélectionnez —</option>
-                      {countryOptions.map((o) => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  </div>
-
-                  {/* Phone */}
-                  <div>
-                    <label className={labelClass}>Téléphone</label>
-                    <div className="grid grid-cols-[100px_1fr] gap-3">
-                      <select value={phonePrefix} onChange={(e) => setPhonePrefix(e.target.value)} className={selectClass}>
-                        {phonePrefixes.map((p) => <option key={p} value={p}>{p}</option>)}
+                      <label className={labelClass}>Type de profil</label>
+                      <select value={profileType} onChange={(e) => setProfileType(e.target.value)} className={selectClass}>
+                        <option value="">— Sélectionnez —</option>
+                        {profileOptions.map((o) => <option key={o} value={o}>{o}</option>)}
                       </select>
-                      <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="6 12 34 56 78" className={inputClass} />
+                    </div>
+
+                    {/* Civility + Last name + First name */}
+                    <div className="grid grid-cols-[100px_1fr_1fr] gap-3">
+                      <div>
+                        <label className={labelClass}>Civilité</label>
+                        <select value={civility} onChange={(e) => setCivility(e.target.value)} className={selectClass}>
+                          <option value="">—</option>
+                          {civilityOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className={labelClass}>Nom <span className="text-destructive">*</span></label>
+                        <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Nom" className={inputClass} />
+                        {errors.lastName && <p className={errorClass}>{errors.lastName}</p>}
+                      </div>
+                      <div>
+                        <label className={labelClass}>Prénom <span className="text-destructive">*</span></label>
+                        <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Prénom" className={inputClass} />
+                        {errors.firstName && <p className={errorClass}>{errors.firstName}</p>}
+                      </div>
+                    </div>
+
+                    {/* Address */}
+                    <div>
+                      <label className={labelClass}>Adresse</label>
+                      <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Numéro et nom de rue" className={inputClass} />
+                    </div>
+
+                    {/* Postal + City */}
+                    <div className="grid grid-cols-[140px_1fr] gap-3">
+                      <div>
+                        <label className={labelClass}>Code postal</label>
+                        <input type="text" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="75001" className={inputClass} />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Ville</label>
+                        <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Paris" className={inputClass} />
+                      </div>
+                    </div>
+
+                    {/* Country */}
+                    <div>
+                      <label className={labelClass}>Pays</label>
+                      <select value={country} onChange={(e) => setCountry(e.target.value)} className={selectClass}>
+                        <option value="">— Sélectionnez —</option>
+                        {countryOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    </div>
+
+                    {/* Phone */}
+                    <div>
+                      <label className={labelClass}>Téléphone</label>
+                      <div className="grid grid-cols-[100px_1fr] gap-3">
+                        <select value={phonePrefix} onChange={(e) => setPhonePrefix(e.target.value)} className={selectClass}>
+                          {phonePrefixes.map((p) => <option key={p} value={p}>{p}</option>)}
+                        </select>
+                        <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="6 12 34 56 78" className={inputClass} />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Anti-spam */}
-              <div className="max-w-5xl mx-auto mt-10 pt-8 border-t border-border">
-                <h3 className="font-heading text-lg font-bold text-foreground mb-4">Vérification anti-spam</h3>
-                <label className="inline-flex items-center gap-3 cursor-pointer select-none rounded-lg border border-border px-5 py-4 bg-muted hover:bg-muted/80 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={captcha}
-                    onChange={(e) => setCaptcha(e.target.checked)}
-                    className="w-5 h-5 rounded border-border text-primary focus:ring-primary/40"
-                  />
-                  <span className="text-sm font-medium text-foreground">Je ne suis pas un robot</span>
-                </label>
-                {errors.captcha && <p className={`${errorClass} mt-2`}>{errors.captcha}</p>}
-              </div>
+              {/* Anti-spam + Submit */}
+              <div className="max-w-5xl mx-auto mt-10">
+                <div className="bg-muted/50 rounded-2xl border border-border p-6">
+                  <h3 className="font-heading text-base font-bold text-foreground mb-4">Vérification</h3>
+                  <label className="inline-flex items-center gap-3 cursor-pointer select-none rounded-xl border border-border px-5 py-3.5 bg-background hover:border-primary/30 transition-all duration-200">
+                    <input
+                      type="checkbox"
+                      checked={captcha}
+                      onChange={(e) => setCaptcha(e.target.checked)}
+                      className="w-5 h-5 rounded border-border text-primary focus:ring-primary/40 accent-[hsl(var(--primary))]"
+                    />
+                    <span className="text-sm font-medium text-foreground">Je ne suis pas un robot</span>
+                  </label>
+                  {errors.captcha && <p className={`${errorClass} mt-2`}>{errors.captcha}</p>}
+                </div>
 
-              {/* Submit */}
-              <div className="max-w-5xl mx-auto mt-8 text-center">
-                <button
-                  type="submit"
-                  className="inline-flex items-center justify-center px-10 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/90 active:scale-95 transition-all shadow-md"
-                >
-                  Envoyer mon message
-                </button>
+                <div className="mt-8 text-center">
+                  <button
+                    type="submit"
+                    className="inline-flex items-center justify-center px-12 py-4 rounded-full bg-primary text-primary-foreground font-bold text-base hover:bg-primary/90 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-primary/20"
+                  >
+                    Envoyer mon message
+                  </button>
+                </div>
               </div>
             </form>
           )}
@@ -296,25 +317,26 @@ const Contact = () => {
       </section>
 
       {/* Legal / GDPR */}
-      <section className="py-14 bg-muted">
+      <section className="py-14 bg-muted/60">
         <div className="container mx-auto px-6 max-w-4xl">
           <ScrollReveal>
-            <h3 className="font-heading text-lg font-bold text-foreground mb-6">Protection des données personnelles</h3>
-            <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
+            <div className="flex items-center gap-2 mb-6">
+              <Shield size={18} className="text-primary" />
+              <h3 className="font-heading text-lg font-bold text-foreground">Protection des données</h3>
+            </div>
+            <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
               <p>
-                Les informations recueillies via ce formulaire font l'objet d'un traitement informatique destiné à répondre à votre demande. Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès, de rectification et de suppression de vos données. Pour exercer ces droits, contactez-nous à{" "}
-                <a href="mailto:dpo@nutriwell.com" className="text-primary hover:underline">dpo@nutriwell.com</a>.
+                Les informations recueillies via ce formulaire font l'objet d'un traitement destiné à répondre à votre demande. Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de suppression. Contactez{" "}
+                <a href="mailto:dpo@nutriwell.com" className="text-primary hover:underline font-medium">dpo@nutriwell.com</a>.
               </p>
               <p>
-                Vos données seront conservées pendant une durée maximale de 3 ans à compter de votre dernière interaction avec Nutriwell, sauf obligation légale contraire. Elles ne seront en aucun cas cédées à des tiers sans votre consentement préalable.
+                Vos données sont conservées 3 ans maximum à compter de votre dernière interaction. Elles ne seront jamais cédées à des tiers sans consentement.
               </p>
               <p>
-                Pour plus d'informations sur la manière dont nous traitons vos données, veuillez consulter notre{" "}
-                <a href="#" className="text-primary hover:underline">Politique de confidentialité</a>{" "}
-                et nos <a href="#" className="text-primary hover:underline">Conditions générales d'utilisation</a>.
+                Consultez notre <a href="#" className="text-primary hover:underline font-medium">Politique de confidentialité</a> et nos <a href="#" className="text-primary hover:underline font-medium">CGU</a> pour plus de détails.
               </p>
               <p>
-                En soumettant ce formulaire, vous reconnaissez avoir pris connaissance de ces informations et acceptez que vos données soient traitées conformément à notre politique de confidentialité.
+                En soumettant ce formulaire, vous acceptez que vos données soient traitées conformément à notre politique de confidentialité.
               </p>
             </div>
           </ScrollReveal>
@@ -324,21 +346,21 @@ const Contact = () => {
       <WaveDivider fillColor="hsl(var(--background))" />
 
       {/* Benefits Strip */}
-      <section className="py-14">
+      <section className="py-16">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {[
-              { icon: Phone, title: "Réponse sous 48h", desc: "Notre équipe s'engage à traiter chaque demande rapidement." },
-              { icon: Shield, title: "Données sécurisées", desc: "Vos informations sont protégées conformément au RGPD." },
-              { icon: Clock, title: "Support dédié", desc: "Un interlocuteur qualifié pour chaque type de demande." },
+              { icon: Phone, title: "Réponse sous 48h", desc: "Chaque demande est traitée avec soin par notre équipe.", color: "primary" },
+              { icon: Shield, title: "Données sécurisées", desc: "Vos informations sont protégées conformément au RGPD.", color: "secondary" },
+              { icon: Clock, title: "Support dédié", desc: "Un interlocuteur qualifié pour chaque type de demande.", color: "accent" },
             ].map((b, i) => (
               <ScrollReveal key={i} delay={i * 0.1}>
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <b.icon className="text-primary" size={22} />
+                <div className="text-center p-6 rounded-2xl bg-muted/40 hover:bg-muted/70 transition-colors duration-200">
+                  <div className={`w-14 h-14 rounded-xl bg-${b.color}/10 flex items-center justify-center mx-auto mb-4`}>
+                    <b.icon className={`text-${b.color}`} size={24} />
                   </div>
-                  <h4 className="font-heading font-bold text-foreground">{b.title}</h4>
-                  <p className="text-sm text-muted-foreground">{b.desc}</p>
+                  <h4 className="font-heading font-bold text-foreground mb-2">{b.title}</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
                 </div>
               </ScrollReveal>
             ))}
