@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { MapPin, Navigation, Search, Clock, Shield, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -14,17 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-// Fix default marker icons for leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
 
 interface Pharmacy {
   id: number;
@@ -71,6 +62,56 @@ const StoreLocator = () => {
     filteredPharmacies.length > 0
       ? [filteredPharmacies[0].lat, filteredPharmacies[0].lng]
       : [48.8566, 2.3522];
+
+  const mapRef = useRef<HTMLDivElement>(null);
+  const leafletMapRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.Marker[]>([]);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    // Initialize map only once
+    if (!leafletMapRef.current) {
+      // Fix default marker icons
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+        iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+      });
+
+      leafletMapRef.current = L.map(mapRef.current).setView(mapCenter, 13);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(leafletMapRef.current);
+    }
+
+    // Update view
+    leafletMapRef.current.setView(mapCenter, 13);
+
+    // Clear old markers
+    markersRef.current.forEach((m) => m.remove());
+    markersRef.current = [];
+
+    // Add new markers
+    filteredPharmacies.forEach((p) => {
+      const marker = L.marker([p.lat, p.lng])
+        .addTo(leafletMapRef.current!)
+        .bindPopup(`<strong>${p.name}</strong><br/>${p.address}, ${p.city}<br/>${p.phone}`);
+      markersRef.current.push(marker);
+    });
+
+    return () => {};
+  }, [filteredPharmacies, mapCenter]);
+
+  useEffect(() => {
+    return () => {
+      if (leafletMapRef.current) {
+        leafletMapRef.current.remove();
+        leafletMapRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background font-body">
@@ -192,28 +233,7 @@ const StoreLocator = () => {
 
             {/* Right – Map */}
             <div className="lg:col-span-3 rounded-xl overflow-hidden border border-border" style={{ minHeight: 400 }}>
-              <MapContainer
-                center={mapCenter}
-                zoom={13}
-                scrollWheelZoom={true}
-                style={{ height: "100%", width: "100%", minHeight: 400 }}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {filteredPharmacies.map((p) => (
-                  <Marker key={p.id} position={[p.lat, p.lng]}>
-                    <Popup>
-                      <strong>{p.name}</strong>
-                      <br />
-                      {p.address}, {p.city}
-                      <br />
-                      {p.phone}
-                    </Popup>
-                  </Marker>
-                ))}
-              </MapContainer>
+              <div ref={mapRef} style={{ height: "100%", width: "100%", minHeight: 400 }} />
             </div>
           </div>
         </div>
