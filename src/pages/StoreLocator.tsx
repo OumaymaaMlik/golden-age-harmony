@@ -233,28 +233,7 @@ const StoreLocator = () => {
 
             {/* Right – Map */}
             <div className="lg:col-span-3 rounded-xl overflow-hidden border border-border" style={{ minHeight: 400 }}>
-              <MapContainer
-                center={mapCenter}
-                zoom={13}
-                scrollWheelZoom={true}
-                style={{ height: "100%", width: "100%", minHeight: 400 }}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {filteredPharmacies.map((p) => (
-                  <Marker key={p.id} position={[p.lat, p.lng]}>
-                    <Popup>
-                      <strong>{p.name}</strong>
-                      <br />
-                      {p.address}, {p.city}
-                      <br />
-                      {p.phone}
-                    </Popup>
-                  </Marker>
-                ))}
-              </MapContainer>
+              <div ref={mapRef} style={{ height: "100%", width: "100%", minHeight: 400 }} />
             </div>
           </div>
         </div>
