@@ -7,7 +7,7 @@ const navLinks = [
   { label: "Nos Produits", href: "/products" },
   { label: "Qui Sommes-Nous", href: "/about" },
   { label: "Nos Recettes et Astuces", href: "/recipes" },
-  { label: "À Propos", href: "/#about" },
+
 ];
 
 const Navbar = () => {

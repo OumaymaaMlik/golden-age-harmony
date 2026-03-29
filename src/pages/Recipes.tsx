@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Clock, Users, ChefHat, Sparkles, Heart, Award, Leaf } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import WaveDivider from "@/components/WaveDivider";
+
 import ScrollReveal from "@/components/ScrollReveal";
 
 import heroImg from "@/assets/recipes-hero.jpg";
@@ -108,9 +108,7 @@ const Recipes = () => {
           </motion.p>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 z-10">
-          <WaveDivider fillColor="hsl(0 0% 100%)" />
-        </div>
+
       </section>
 
       {/* ── Filter Bar ── */}
@@ -192,10 +190,7 @@ const Recipes = () => {
       </section>
 
       {/* ── Benefits Strip ── */}
-      <section className="bg-muted py-14 relative">
-        <div className="absolute top-0 left-0 right-0 rotate-180">
-          <WaveDivider fillColor="hsl(0 0% 100%)" />
-        </div>
+      <section className="bg-muted py-14">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-8 text-center">
             {benefitsStrip.map((b, i) => (
@@ -209,9 +204,6 @@ const Recipes = () => {
               </ScrollReveal>
             ))}
           </div>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0">
-          <WaveDivider fillColor="hsl(var(--brand-dark))" />
         </div>
       </section>
 

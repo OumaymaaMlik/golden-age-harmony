@@ -3,7 +3,7 @@ import { MapPin, Navigation, Search, Clock, Shield, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import WaveDivider from "@/components/WaveDivider";
+
 import ScrollReveal from "@/components/ScrollReveal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -94,7 +94,6 @@ const StoreLocator = () => {
             </p>
           </div>
         </div>
-        <WaveDivider />
       </section>
 
       {/* Search Block */}
