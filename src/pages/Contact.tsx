@@ -105,7 +105,7 @@ const Contact = () => {
         </div>
       </section>
 
-      <WaveDivider from="muted" to="background" />
+      <WaveDivider fillColor="hsl(var(--background))" />
 
       {/* Instruction */}
       <section className="py-6">
