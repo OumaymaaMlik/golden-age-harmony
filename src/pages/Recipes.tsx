@@ -19,6 +19,7 @@ const filters = ["Toutes", "Petit-déjeuner", "Déjeuner", "Snacks", "Boissons"]
 
 interface RecipeCard {
   type: "recipe";
+  slug: string;
   title: string;
   category: string;
   time: string;
@@ -37,18 +38,15 @@ interface PromoCard {
 type GridItem = RecipeCard | PromoCard;
 
 const gridItems: GridItem[] = [
-  // Row 1
-  { type: "recipe", title: "Smoothie Protéiné aux Fruits Rouges", category: "Boissons", time: "5 min", servings: 1, image: smoothieImg },
-  { type: "recipe", title: "Velouté de Légumes Enrichi", category: "Déjeuner", time: "25 min", servings: 2, image: soupImg },
+  { type: "recipe", slug: "smoothie-proteine-fruits-rouges", title: "Smoothie Protéiné aux Fruits Rouges", category: "Boissons", time: "5 min", servings: 1, image: smoothieImg },
+  { type: "recipe", slug: "veloute-legumes-enrichi", title: "Velouté de Légumes Enrichi", category: "Déjeuner", time: "25 min", servings: 2, image: soupImg },
   { type: "promo", icon: Sparkles, title: "Boostez vos recettes", desc: "Ajoutez Nutriwell Boisson Fruitée à vos smoothies pour un apport protéiné complet.", color: "primary" },
-  // Row 2
-  { type: "recipe", title: "Salade de Fruits Vitaminée", category: "Snacks", time: "10 min", servings: 2, image: saladImg },
+  { type: "recipe", slug: "salade-fruits-vitaminee", title: "Salade de Fruits Vitaminée", category: "Snacks", time: "10 min", servings: 2, image: saladImg },
   { type: "promo", icon: Heart, title: "Astuce bien-être", desc: "Un petit-déjeuner riche en protéines aide à maintenir votre énergie toute la matinée.", color: "secondary" },
-  { type: "recipe", title: "Overnight Oats aux Superfruits", category: "Petit-déjeuner", time: "10 min + repos", servings: 1, image: oatsImg },
-  // Row 3
+  { type: "recipe", slug: "overnight-oats-superfruits", title: "Overnight Oats aux Superfruits", category: "Petit-déjeuner", time: "10 min + repos", servings: 1, image: oatsImg },
   { type: "promo", icon: Leaf, title: "Le saviez-vous ?", desc: "Les fibres alimentaires favorisent une digestion saine et un confort intestinal durable.", color: "accent" },
-  { type: "recipe", title: "Pavé de Saumon Grillé & Légumes", category: "Déjeuner", time: "30 min", servings: 2, image: salmonImg },
-  { type: "recipe", title: "Toast Avocat & Œuf Poché", category: "Petit-déjeuner", time: "15 min", servings: 1, image: toastImg },
+  { type: "recipe", slug: "pave-saumon-grille-legumes", title: "Pavé de Saumon Grillé & Légumes", category: "Déjeuner", time: "30 min", servings: 2, image: salmonImg },
+  { type: "recipe", slug: "toast-avocat-oeuf-poche", title: "Toast Avocat & Œuf Poché", category: "Petit-déjeuner", time: "15 min", servings: 1, image: toastImg },
 ];
 
 const benefitsStrip = [
@@ -161,9 +159,9 @@ const Recipes = () => {
                         <span className="flex items-center gap-1"><Clock size={14} /> {item.time}</span>
                         <span className="flex items-center gap-1"><Users size={14} /> {item.servings} pers.</span>
                       </div>
-                      <a href="#" className="text-secondary text-sm font-semibold hover:underline">
+                      <Link to={`/recipes/${item.slug}`} className="text-secondary text-sm font-semibold hover:underline">
                         Voir la recette →
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </ScrollReveal>
