@@ -37,7 +37,15 @@ const Products = () => {
           activeRegime={activeRegime}
         />
         <WaveDivider fillColor="hsl(0 0% 100%)" />
-        <CredibilityBar />
+        <div className="bg-muted py-16 md:py-20 relative">
+          <div className="absolute top-0 left-0 right-0 rotate-180">
+            <WaveDivider fillColor="hsl(0 0% 100%)" />
+          </div>
+          <CredibilityBar />
+          <div className="absolute bottom-0 left-0 right-0">
+            <WaveDivider fillColor="hsl(var(--brand-dark))" />
+          </div>
+        </div>
       </div>
       <Footer />
     </div>

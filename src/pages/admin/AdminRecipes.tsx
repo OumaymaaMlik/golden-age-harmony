@@ -1,41 +1,50 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchAdminProducts, signOut, updateProductPublishStatus } from "@/lib/admin-service";
 import { Link, useNavigate } from "react-router-dom";
+import { deleteRecipe, fetchAdminRecipes, updateRecipePublishStatus } from "@/lib/recipe-service";
+import { signOut } from "@/lib/admin-service";
 
-const AdminProducts = () => {
+const AdminRecipes = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
 
-  const { data: products = [], isLoading, isError } = useQuery({
-    queryKey: ["admin-products"],
-    queryFn: fetchAdminProducts,
+  const { data: recipes = [], isLoading, isError } = useQuery({
+    queryKey: ["admin-recipes"],
+    queryFn: fetchAdminRecipes,
   });
 
   const publishMutation = useMutation({
     mutationFn: ({ id, nextStatus }: { id: string; nextStatus: boolean }) =>
-      updateProductPublishStatus(id, nextStatus),
+      updateRecipePublishStatus(id, nextStatus),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["admin-products"] });
-      await queryClient.invalidateQueries({ queryKey: ["products-grid"] });
-      await queryClient.invalidateQueries({ queryKey: ["product-detail"] });
-      await queryClient.invalidateQueries({ queryKey: ["related-products"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-recipes"] });
+      await queryClient.invalidateQueries({ queryKey: ["recipes-public"] });
+      await queryClient.invalidateQueries({ queryKey: ["recipe-detail"] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteRecipe(id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin-recipes"] });
+      await queryClient.invalidateQueries({ queryKey: ["recipes-public"] });
+      await queryClient.invalidateQueries({ queryKey: ["recipe-detail"] });
     },
   });
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return products;
+    if (!q) return recipes;
 
-    return products.filter((product) => {
+    return recipes.filter((recipe) => {
       return (
-        product.name.toLowerCase().includes(q) ||
-        product.slug.toLowerCase().includes(q) ||
-        product.category.toLowerCase().includes(q)
+        recipe.title.toLowerCase().includes(q) ||
+        recipe.slug.toLowerCase().includes(q) ||
+        recipe.category.toLowerCase().includes(q)
       );
     });
-  }, [products, search]);
+  }, [recipes, search]);
 
   const onLogout = async () => {
     await signOut();
@@ -47,15 +56,15 @@ const AdminProducts = () => {
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="font-heading text-3xl font-bold text-foreground">Produits Admin</h1>
-            <p className="text-muted-foreground">Gérez la publication des produits.</p>
+            <h1 className="font-heading text-3xl font-bold text-foreground">Recettes Admin</h1>
+            <p className="text-muted-foreground">Gerez les recettes et leur publication.</p>
           </div>
           <div className="flex items-center gap-2">
             <Link
-              to="/admin/recipes"
+              to="/admin/products"
               className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-foreground hover:bg-muted"
             >
-              Recettes
+              Produits
             </Link>
             <Link
               to="/admin/contact-reports"
@@ -64,16 +73,16 @@ const AdminProducts = () => {
               Rapports contact
             </Link>
             <Link
-              to="/admin/products/new"
+              to="/admin/recipes/new"
               className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
-              Nouveau produit
+              Nouvelle recette
             </Link>
             <button
               onClick={onLogout}
               className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-foreground hover:bg-muted"
             >
-              Déconnexion
+              Deconnexion
             </button>
           </div>
         </div>
@@ -82,29 +91,29 @@ const AdminProducts = () => {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rechercher par nom, slug, catégorie"
+            placeholder="Rechercher par titre, slug, categorie"
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
         <div className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[820px]">
+            <table className="w-full min-w-[900px]">
               <thead className="bg-muted/40">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Nom</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Titre</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Slug</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Catégorie</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Texture</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Categorie</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Preparation</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Statut</th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-foreground">Action</th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold text-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading && (
                   <tr>
                     <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
-                      Chargement des produits...
+                      Chargement des recettes...
                     </td>
                   </tr>
                 )}
@@ -120,32 +129,32 @@ const AdminProducts = () => {
                 {!isLoading && !isError && filtered.length === 0 && (
                   <tr>
                     <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
-                      Aucun produit trouvé.
+                      Aucune recette trouvee.
                     </td>
                   </tr>
                 )}
 
-                {filtered.map((product) => (
-                  <tr key={product.id} className="border-t border-border">
-                    <td className="px-4 py-3 text-sm text-foreground">{product.name}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{product.slug}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{product.category}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{product.texture}</td>
+                {filtered.map((recipe) => (
+                  <tr key={recipe.id} className="border-t border-border">
+                    <td className="px-4 py-3 text-sm text-foreground">{recipe.title}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">{recipe.slug}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">{recipe.category}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">{recipe.prep_time}</td>
                     <td className="px-4 py-3 text-sm">
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                          product.is_published
+                          recipe.is_published
                             ? "bg-secondary/15 text-secondary"
                             : "bg-muted text-muted-foreground"
                         }`}
                       >
-                        {product.is_published ? "Publié" : "Brouillon"}
+                        {recipe.is_published ? "Publiee" : "Brouillon"}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link
-                          to={`/admin/products/${product.id}/edit`}
+                          to={`/admin/recipes/${recipe.id}/edit`}
                           className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
                         >
                           Modifier
@@ -153,14 +162,21 @@ const AdminProducts = () => {
                         <button
                           onClick={() =>
                             publishMutation.mutate({
-                              id: product.id,
-                              nextStatus: !product.is_published,
+                              id: recipe.id,
+                              nextStatus: !recipe.is_published,
                             })
                           }
                           disabled={publishMutation.isPending}
                           className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-60"
                         >
-                          {product.is_published ? "Dépublier" : "Publier"}
+                          {recipe.is_published ? "Depublier" : "Publier"}
+                        </button>
+                        <button
+                          onClick={() => deleteMutation.mutate(recipe.id)}
+                          disabled={deleteMutation.isPending}
+                          className="rounded-full border border-destructive/40 px-4 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-60"
+                        >
+                          Supprimer
                         </button>
                       </div>
                     </td>
@@ -175,4 +191,4 @@ const AdminProducts = () => {
   );
 };
 
-export default AdminProducts;
+export default AdminRecipes;

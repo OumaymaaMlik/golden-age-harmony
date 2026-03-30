@@ -5,6 +5,7 @@ import WaveDivider from "@/components/WaveDivider";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Phone, Shield, Clock, ChevronRight, Upload, CheckSquare, Mail, MessageSquare, User } from "lucide-react";
 import { Link } from "react-router-dom";
+import { createContactReport, uploadContactAttachment } from "@/lib/contact-service";
 
 const subjectOptions = [
   "Demande d'information produit",
@@ -34,6 +35,7 @@ const Contact = () => {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [fileName, setFileName] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [email, setEmail] = useState("");
   const [profileType, setProfileType] = useState("");
   const [civility, setCivility] = useState("");
@@ -48,10 +50,24 @@ const Contact = () => {
   const [captcha, setCaptcha] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    setFileName(file ? file.name : "");
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      // Limit file size to 5MB
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        setErrors(prev => ({ ...prev, file: "Le fichier ne doit pas dépasser 5 Mo" }));
+        return;
+      }
+      setFile(selectedFile);
+      setFileName(selectedFile.name);
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.file;
+        return newErrors;
+      });
+    }
   };
 
   const validate = () => {
@@ -66,12 +82,54 @@ const Contact = () => {
     return errs;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     setErrors(errs);
+    
     if (Object.keys(errs).length === 0) {
-      setSubmitted(true);
+      try {
+        setIsSubmitting(true);
+        
+        // Upload file if present
+        let attachmentUrl: string | null = null;
+        if (file) {
+          try {
+            attachmentUrl = await uploadContactAttachment(file, email);
+          } catch (fileErr) {
+            console.error("File upload failed:", fileErr);
+            // Continue without the file
+          }
+        }
+
+        // Create contact report
+        await createContactReport({
+          subject,
+          message,
+          email,
+          profileType,
+          civility,
+          lastName,
+          firstName,
+          address,
+          postalCode,
+          city,
+          country,
+          phonePrefix,
+          phoneNumber,
+          attachmentUrl,
+        });
+
+        setSubmitted(true);
+      } catch (err) {
+        console.error("Error submitting form:", err);
+        setErrors(prev => ({
+          ...prev,
+          submit: "Une erreur est survenue lors de l'envoi. Veuillez réessayer.",
+        }));
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -303,11 +361,17 @@ const Contact = () => {
                 </div>
 
                 <div className="mt-8 text-center">
+                  {errors.submit && (
+                    <div className="mb-4 p-4 bg-destructive/10 border border-destructive text-destructive rounded-lg">
+                      {errors.submit}
+                    </div>
+                  )}
                   <button
                     type="submit"
-                    className="inline-flex items-center justify-center px-12 py-4 rounded-full bg-primary text-primary-foreground font-bold text-base hover:bg-primary/90 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-primary/20"
+                    disabled={isSubmitting}
+                    className="inline-flex items-center justify-center px-12 py-4 rounded-full bg-primary text-primary-foreground font-bold text-base hover:bg-primary/90 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Envoyer mon message
+                    {isSubmitting ? "Envoi en cours..." : "Envoyer mon message"}
                   </button>
                 </div>
               </div>
@@ -346,25 +410,33 @@ const Contact = () => {
       <WaveDivider fillColor="hsl(var(--background))" />
 
       {/* Benefits Strip */}
-      <section className="py-16">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {[
-              { icon: Phone, title: "Réponse sous 48h", desc: "Chaque demande est traitée avec soin par notre équipe.", color: "primary" },
-              { icon: Shield, title: "Données sécurisées", desc: "Vos informations sont protégées conformément au RGPD.", color: "secondary" },
-              { icon: Clock, title: "Support dédié", desc: "Un interlocuteur qualifié pour chaque type de demande.", color: "accent" },
-            ].map((b, i) => (
-              <ScrollReveal key={i} delay={i * 0.1}>
-                <div className="text-center p-6 rounded-2xl bg-muted/40 hover:bg-muted/70 transition-colors duration-200">
-                  <div className={`w-14 h-14 rounded-xl bg-${b.color}/10 flex items-center justify-center mx-auto mb-4`}>
-                    <b.icon className={`text-${b.color}`} size={24} />
+      <section className="relative">
+        <div className="absolute top-0 left-0 right-0 rotate-180">
+          <WaveDivider fillColor="hsl(0 0% 100%)" />
+        </div>
+        <div className="bg-muted py-20 md:py-24">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              {[
+                { icon: Phone, title: "Réponse sous 48h", desc: "Chaque demande est traitée avec soin par notre équipe.", color: "primary" },
+                { icon: Shield, title: "Données sécurisées", desc: "Vos informations sont protégées conformément au RGPD.", color: "secondary" },
+                { icon: Clock, title: "Support dédié", desc: "Un interlocuteur qualifié pour chaque type de demande.", color: "accent" },
+              ].map((b, i) => (
+                <ScrollReveal key={i} delay={i * 0.1}>
+                  <div className="text-center p-6 rounded-2xl bg-card hover:shadow-md transition-all duration-200">
+                    <div className={`w-14 h-14 rounded-xl bg-${b.color}/10 flex items-center justify-center mx-auto mb-4`}>
+                      <b.icon className={`text-${b.color}`} size={24} />
+                    </div>
+                    <h4 className="font-heading font-bold text-foreground mb-2">{b.title}</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
                   </div>
-                  <h4 className="font-heading font-bold text-foreground mb-2">{b.title}</h4>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
-                </div>
-              </ScrollReveal>
-            ))}
+                </ScrollReveal>
+              ))}
+            </div>
           </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0">
+          <WaveDivider fillColor="hsl(var(--brand-dark))" />
         </div>
       </section>
 

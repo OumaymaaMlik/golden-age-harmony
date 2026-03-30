@@ -1,7 +1,8 @@
 import { ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
-import heroImage from "@/assets/hero-couple.jpg";
 import WaveDivider from "./WaveDivider";
+
+const heroImage = "https://ttadnsndjrchvmogxsdz.supabase.co/storage/v1/object/public/bannerheader/attempt1.webp";
 
 const HeroSection = () => {
   return (

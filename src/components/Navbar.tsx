@@ -81,11 +81,13 @@ const Navbar = () => {
         </nav>
 
         <div className="hidden lg:flex items-center gap-5">
-          <Link to="/store-locator" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Trouver une pharmacie">
+          <Link to="/store-locator" className="text-foreground/50 hover:text-primary transition-colors flex flex-col items-center" aria-label="Trouver une pharmacie">
             <MapPin size={20} />
+            <span className="text-xs mt-1">Location</span>
           </Link>
-          <Link to="/contact" className="text-foreground/50 hover:text-primary transition-colors" aria-label="Contact">
+          <Link to="/contact" className="text-foreground/50 hover:text-primary transition-colors flex flex-col items-center" aria-label="Contact">
             <Phone size={20} />
+            <span className="text-xs mt-1">Contact</span>
           </Link>
         </div>
 

@@ -1,102 +1,16 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Clock, Users, Printer, ChefHat, Flame, Award, Leaf, Heart, Lightbulb } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import WaveDivider from "@/components/WaveDivider";
 import ScrollReveal from "@/components/ScrollReveal";
+import { fetchPublishedRecipeBySlug, fetchPublishedRecipes } from "@/lib/recipe-service";
+import { formatNutritionForDisplay } from "@/lib/nutrition-transformer";
 
 import heroImg from "@/assets/recipe-detail-hero.jpg";
 import productThumb from "@/assets/nutriwell-product-thumb.jpg";
-import smoothieImg from "@/assets/recipe-smoothie.jpg";
-import soupImg from "@/assets/recipe-soup.jpg";
-import saladImg from "@/assets/recipe-salad.jpg";
-
-/* ── Recipe data store ── */
-const recipesData: Record<string, {
-  title: string;
-  category: string;
-  prepTime: string;
-  totalTime: string;
-  servings: number;
-  heroImage: string;
-  nutrition: { calories: number; protein: string; carbs: string; fat: string; perServing: string };
-  product: { name: string; slug: string };
-  ingredients: string[];
-  steps: string[];
-  tip: { title: string; text: string };
-}> = {
-  "smoothie-proteine-fruits-rouges": {
-    title: "Smoothie Protéiné aux Fruits Rouges",
-    category: "Boissons",
-    prepTime: "5 min",
-    totalTime: "5 min",
-    servings: 1,
-    heroImage: heroImg,
-    nutrition: { calories: 245, protein: "18g", carbs: "32g", fat: "4g", perServing: "1 verre (350 ml)" },
-    product: { name: "Nutriwell Boisson Fruitée", slug: "nutriwell-boisson-fruitee" },
-    ingredients: [
-      "1 sachet Nutriwell Boisson Fruitée (saveur fruits rouges)",
-      "150 ml de lait demi-écrémé froid",
-      "100 g de framboises fraîches ou surgelées",
-      "50 g de myrtilles",
-      "1 banane mûre",
-      "1 cuillère à soupe de flocons d'avoine",
-      "1 cuillère à café de miel (facultatif)",
-      "Quelques glaçons",
-    ],
-    steps: [
-      "Préparez la base Nutriwell : diluez le sachet de Boisson Fruitée dans le lait froid et mélangez bien.",
-      "Ajoutez les fruits : placez les framboises, les myrtilles et la banane dans un blender.",
-      "Versez la préparation Nutriwell sur les fruits, ajoutez les flocons d'avoine et le miel si désiré.",
-      "Mixez à vitesse élevée pendant 30 secondes jusqu'à obtenir une texture lisse et onctueuse.",
-      "Servez immédiatement dans un grand verre avec quelques glaçons et décorez de fruits frais.",
-    ],
-    tip: {
-      title: "Astuce gourmande",
-      text: "Pour une version encore plus onctueuse, remplacez le lait par du yaourt grec nature. Vous pouvez également ajouter une cuillère de beurre de cacahuète pour un apport supplémentaire en protéines et en bonnes graisses.",
-    },
-  },
-  "veloute-legumes-enrichi": {
-    title: "Velouté de Légumes Enrichi",
-    category: "Déjeuner",
-    prepTime: "10 min",
-    totalTime: "25 min",
-    servings: 2,
-    heroImage: heroImg,
-    nutrition: { calories: 190, protein: "14g", carbs: "22g", fat: "5g", perServing: "1 bol (300 ml)" },
-    product: { name: "Nutriwell Boisson Concentrée", slug: "nutriwell-boisson-concentree" },
-    ingredients: [
-      "1 sachet Nutriwell Boisson Concentrée",
-      "2 carottes pelées et coupées",
-      "1 courgette en rondelles",
-      "1 pomme de terre moyenne",
-      "1 oignon émincé",
-      "500 ml de bouillon de légumes",
-      "1 cuillère à soupe d'huile d'olive",
-      "Sel, poivre, muscade",
-    ],
-    steps: [
-      "Faites revenir l'oignon dans l'huile d'olive pendant 3 minutes.",
-      "Ajoutez les légumes coupés et le bouillon, portez à ébullition.",
-      "Laissez mijoter 15 minutes jusqu'à ce que les légumes soient tendres.",
-      "Mixez finement, puis incorporez le sachet Nutriwell hors du feu.",
-      "Rectifiez l'assaisonnement et servez chaud avec un filet d'huile d'olive.",
-    ],
-    tip: {
-      title: "Conseil nutrition",
-      text: "Ce velouté enrichi apporte une portion complète de protéines tout en restant léger. Idéal pour un déjeuner rapide ou un dîner réconfortant.",
-    },
-  },
-};
-
-/* ── Default fallback ── */
-const defaultRecipe = recipesData["smoothie-proteine-fruits-rouges"];
-
-const similarRecipes = [
-  { slug: "veloute-legumes-enrichi", title: "Velouté de Légumes Enrichi", image: soupImg },
-  { slug: "salade-fruits-vitaminee", title: "Salade de Fruits Vitaminée", image: saladImg },
-  { slug: "smoothie-proteine-fruits-rouges", title: "Smoothie Protéiné aux Fruits Rouges", image: smoothieImg },
-];
 
 const benefits = [
   { icon: Award, text: "Recettes validées par nos nutritionnistes" },
@@ -107,12 +21,91 @@ const benefits = [
 const RecipeDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const recipe = (slug && recipesData[slug]) || defaultRecipe;
+  
+  const [recipe, setRecipe] = useState<any>(null);
+  const [similarRecipes, setSimilarRecipes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadRecipe = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        if (!slug) {
+          setError("Recette non trouvée");
+          return;
+        }
+
+        // Fetch the recipe by slug
+        const recipeData = await fetchPublishedRecipeBySlug(slug);
+        if (!recipeData) {
+          setError("Cette recette n'existe pas");
+          return;
+        }
+
+        // Fetch all recipes to get similar ones
+        const allRecipes = await fetchPublishedRecipes();
+        const similar = allRecipes
+          .filter((r) => r.slug !== slug)
+          .slice(0, 3)
+          .map((r) => ({
+            slug: r.slug,
+            title: r.title,
+            image: r.image || "https://images.unsplash.com/photo-1495544871167-ce0a60e35c02?w=400&h=300&fit=crop",
+          }));
+
+        setRecipe({
+          ...recipeData,
+          // Parse nutrition array for display
+          nutritionForDisplay: formatNutritionForDisplay(recipeData.nutrition),
+          heroImage: recipeData.image || heroImg,
+        });
+        setSimilarRecipes(similar);
+      } catch (err) {
+        console.error("Error loading recipe:", err);
+        setError("Erreur lors du chargement de la recette");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRecipe();
+  }, [slug]);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
+      {error && (
+        <section className="pt-24 pb-4">
+          <div className="container mx-auto px-6">
+            <div className="p-4 bg-destructive/10 border border-destructive text-destructive rounded-lg mb-4">
+              {error}
+            </div>
+            <Link to="/recipes" className="text-secondary font-semibold hover:underline">← Retour aux recettes</Link>
+          </div>
+        </section>
+      )}
+
+      {loading && !error && (
+        <div className="pt-24 pb-20">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14">
+              <div className="bg-muted rounded-3xl min-h-[420px] animate-pulse" />
+              <div className="space-y-4">
+                <div className="h-8 bg-muted rounded w-3/4 animate-pulse" />
+                <div className="h-12 bg-muted rounded w-full animate-pulse" />
+                <div className="h-6 bg-muted rounded w-1/2 animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {recipe && !loading && (
+        <>
       {/* ── Breadcrumb — more breathing room ── */}
       <section className="pt-24 pb-4">
         <div className="container mx-auto px-6">
@@ -193,34 +186,30 @@ const RecipeDetail = () => {
               {/* Nutrition block — warm background, bolder values */}
               <div className="bg-secondary/10 border border-secondary/25 rounded-2xl p-5 mb-8">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-secondary mb-4">Valeurs nutritionnelles</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {[
-                    { label: "Calories", value: `${recipe.nutrition.calories}`, unit: "kcal", icon: Flame },
-                    { label: "Protéines", value: recipe.nutrition.protein, unit: "" },
-                    { label: "Glucides", value: recipe.nutrition.carbs, unit: "" },
-                    { label: "Lipides", value: recipe.nutrition.fat, unit: "" },
-                  ].map((n) => (
-                    <div key={n.label} className="text-center py-2">
-                      <p className="text-2xl font-bold text-foreground leading-none">{n.value}</p>
-                      {n.unit && <p className="text-xs text-muted-foreground mt-0.5">{n.unit}</p>}
-                      <p className="text-xs font-medium text-secondary mt-1">{n.label}</p>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-muted-foreground text-center mt-3 pt-3 border-t border-secondary/15">
-                  Par portion : {recipe.nutrition.perServing}
-                </p>
+                {recipe.nutritionForDisplay && recipe.nutritionForDisplay.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
+                    {recipe.nutritionForDisplay.map((n: any, idx: number) => (
+                      <div key={idx} className="text-center py-2">
+                        <p className="text-lg font-bold text-foreground leading-none">{n.per100ml}</p>
+                        <p className="text-xs font-medium text-secondary mt-1">{n.nutriment}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 opacity-70">{n.perPortion}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Informations nutritionnelles non disponibles</p>
+                )}
               </div>
 
               {/* Associated product — improved hover */}
               <Link
-                to={`/products/${recipe.product.slug}`}
+                to="/products"
                 className="flex items-center gap-4 p-4 rounded-2xl bg-muted hover:bg-muted/70 hover:shadow-sm transition-all duration-200 mb-8 group"
               >
-                <img src={productThumb} alt={recipe.product.name} className="w-14 h-14 rounded-xl object-cover" width={56} height={56} loading="lazy" />
+                <img src={productThumb} alt="Produit Nutriwell" className="w-14 h-14 rounded-xl object-cover" width={56} height={56} loading="lazy" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-muted-foreground font-medium">Préparée avec</p>
-                  <p className="text-sm font-bold text-foreground group-hover:text-primary transition-all duration-200 truncate">{recipe.product.name}</p>
+                  <p className="text-xs text-muted-foreground font-medium">Découvrez nos produits</p>
+                  <p className="text-sm font-bold text-foreground group-hover:text-primary transition-all duration-200 truncate">Nutriwell - Gamme complète</p>
                 </div>
                 <span className="text-primary text-sm font-bold group-hover:translate-x-0.5 transition-transform duration-200">Voir →</span>
               </Link>
@@ -262,33 +251,35 @@ const RecipeDetail = () => {
       </section>
 
       {/* ── Tip Block — editorial callout with left accent border ── */}
-      <ScrollReveal>
-        <section className="bg-secondary/8 py-14">
-          <div className="container mx-auto px-6">
-            <div className="max-w-3xl mx-auto flex items-start gap-5 bg-card rounded-2xl p-6 border-l-4 border-secondary shadow-sm">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-secondary/15 flex items-center justify-center">
-                <Lightbulb size={22} className="text-secondary" />
-              </div>
-              <div>
-                <h3 className="font-heading text-lg font-bold text-foreground mb-2">{recipe.tip.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{recipe.tip.text}</p>
+      {recipe && recipe.tips && recipe.tips.length > 0 && (
+        <ScrollReveal>
+          <section className="bg-secondary/8 py-14">
+            <div className="container mx-auto px-6">
+              <div className="max-w-3xl mx-auto flex items-start gap-5 bg-card rounded-2xl p-6 border-l-4 border-secondary shadow-sm">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-secondary/15 flex items-center justify-center">
+                  <Lightbulb size={22} className="text-secondary" />
+                </div>
+                <div>
+                  <h3 className="font-heading text-lg font-bold text-foreground mb-2">Astuce - {recipe.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {recipe.tips[0]}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-      </ScrollReveal>
+          </section>
+        </ScrollReveal>
+      )}
 
       {/* ── Similar Recipes — equal-height cards with hover zoom ── */}
-      <section className="py-20">
-        <div className="container mx-auto px-6">
-          <ScrollReveal>
-            <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground text-center mb-10">Découvrez aussi</h2>
-          </ScrollReveal>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto mb-10">
-            {similarRecipes
-              .filter((r) => r.slug !== slug)
-              .slice(0, 3)
-              .map((r, i) => (
+      {recipe && similarRecipes.length > 0 && (
+        <section className="py-20">
+          <div className="container mx-auto px-6">
+            <ScrollReveal>
+              <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground text-center mb-10">Découvrez aussi</h2>
+            </ScrollReveal>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto mb-10">
+              {similarRecipes.map((r, i) => (
                 <ScrollReveal key={r.slug} delay={i * 0.1}>
                   <Link
                     to={`/recipes/${r.slug}`}
@@ -315,33 +306,44 @@ const RecipeDetail = () => {
                   </Link>
                 </ScrollReveal>
               ))}
+            </div>
+            <div className="text-center">
+              <Link
+                to="/recipes"
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-secondary text-secondary-foreground font-bold text-sm hover:bg-secondary/90 hover:shadow-md transition-all duration-200"
+              >
+                Voir toutes les recettes
+              </Link>
+            </div>
           </div>
-          <div className="text-center">
-            <Link
-              to="/recipes"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-secondary text-secondary-foreground font-bold text-sm hover:bg-secondary/90 hover:shadow-md transition-all duration-200"
-            >
-              Voir toutes les recettes
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
+        </>
+      )}
 
       {/* ── Benefits Strip — more padding & polish ── */}
-      <section className="bg-muted py-16">
-        <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-3 gap-10 text-center">
-            {benefits.map((b, i) => (
-              <ScrollReveal key={i} delay={i * 0.1}>
-                <div className="flex flex-col items-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                    <b.icon className="text-primary" size={24} />
+      <section className="relative">
+        <div className="absolute top-0 left-0 right-0 rotate-180">
+          <WaveDivider fillColor="hsl(0 0% 100%)" />
+        </div>
+        <div className="bg-muted py-20 md:py-24">
+          <div className="container mx-auto px-6">
+            <div className="grid md:grid-cols-3 gap-10 text-center">
+              {benefits.map((b, i) => (
+                <ScrollReveal key={i} delay={i * 0.1}>
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                      <b.icon className="text-primary" size={24} />
+                    </div>
+                    <p className="text-sm font-bold text-foreground">{b.text}</p>
                   </div>
-                  <p className="text-sm font-bold text-foreground">{b.text}</p>
-                </div>
-              </ScrollReveal>
-            ))}
+                </ScrollReveal>
+              ))}
+            </div>
           </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0">
+          <WaveDivider fillColor="hsl(var(--brand-dark))" />
         </div>
       </section>
 

@@ -3,7 +3,7 @@ import { MapPin, Navigation, Search, Clock, Shield, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-
+import WaveDivider from "@/components/WaveDivider";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -259,22 +259,30 @@ const StoreLocator = () => {
       </section>
 
       {/* Benefits Strip */}
-      <section className="py-10 bg-background border-t border-border">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
-            {[
-              { icon: Truck, text: "Livraison rapide en pharmacie" },
-              { icon: Shield, text: "Qualité pharmaceutique certifiée" },
-              { icon: Clock, text: "Disponibilité vérifiée en temps réel" },
-            ].map(({ icon: Icon, text }, i) => (
-              <div key={i} className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Icon className="text-primary" size={22} />
+      <section className="relative">
+        <div className="absolute top-0 left-0 right-0 rotate-180">
+          <WaveDivider fillColor="hsl(0 0% 100%)" />
+        </div>
+        <div className="bg-muted py-20 md:py-24">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
+              {[
+                { icon: Truck, text: "Livraison rapide en pharmacie" },
+                { icon: Shield, text: "Qualité pharmaceutique certifiée" },
+                { icon: Clock, text: "Disponibilité vérifiée en temps réel" },
+              ].map(({ icon: Icon, text }, i) => (
+                <div key={i} className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Icon className="text-primary" size={22} />
+                  </div>
+                  <span className="text-sm font-medium text-foreground">{text}</span>
                 </div>
-                <span className="text-sm font-medium text-foreground">{text}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0">
+          <WaveDivider fillColor="hsl(var(--brand-dark))" />
         </div>
       </section>
 

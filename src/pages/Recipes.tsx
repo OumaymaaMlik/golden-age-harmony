@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Clock, Users, ChefHat, Sparkles, Heart, Award, Leaf } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-
+import WaveDivider from "@/components/WaveDivider";
 import ScrollReveal from "@/components/ScrollReveal";
+import { fetchPublishedRecipes } from "@/lib/recipe-service";
 
 import heroImg from "@/assets/recipes-hero.jpg";
 import smoothieImg from "@/assets/recipe-smoothie.jpg";
@@ -35,25 +36,8 @@ interface PromoCard {
   color: "primary" | "secondary" | "accent";
 }
 
+
 type GridItem = RecipeCard | PromoCard;
-
-const gridItems: GridItem[] = [
-  { type: "recipe", slug: "smoothie-proteine-fruits-rouges", title: "Smoothie Protéiné aux Fruits Rouges", category: "Boissons", time: "5 min", servings: 1, image: smoothieImg },
-  { type: "recipe", slug: "veloute-legumes-enrichi", title: "Velouté de Légumes Enrichi", category: "Déjeuner", time: "25 min", servings: 2, image: soupImg },
-  { type: "promo", icon: Sparkles, title: "Boostez vos recettes", desc: "Ajoutez Nutriwell Boisson Fruitée à vos smoothies pour un apport protéiné complet.", color: "primary" },
-  { type: "recipe", slug: "salade-fruits-vitaminee", title: "Salade de Fruits Vitaminée", category: "Snacks", time: "10 min", servings: 2, image: saladImg },
-  { type: "promo", icon: Heart, title: "Astuce bien-être", desc: "Un petit-déjeuner riche en protéines aide à maintenir votre énergie toute la matinée.", color: "secondary" },
-  { type: "recipe", slug: "overnight-oats-superfruits", title: "Overnight Oats aux Superfruits", category: "Petit-déjeuner", time: "10 min + repos", servings: 1, image: oatsImg },
-  { type: "promo", icon: Leaf, title: "Le saviez-vous ?", desc: "Les fibres alimentaires favorisent une digestion saine et un confort intestinal durable.", color: "accent" },
-  { type: "recipe", slug: "pave-saumon-grille-legumes", title: "Pavé de Saumon Grillé & Légumes", category: "Déjeuner", time: "30 min", servings: 2, image: salmonImg },
-  { type: "recipe", slug: "toast-avocat-oeuf-poche", title: "Toast Avocat & Œuf Poché", category: "Petit-déjeuner", time: "15 min", servings: 1, image: toastImg },
-];
-
-const benefitsStrip = [
-  { icon: Award, text: "Recettes validées par nos nutritionnistes" },
-  { icon: Clock, text: "Préparation rapide, moins de 30 min" },
-  { icon: Users, text: "Adaptées aux besoins des seniors" },
-];
 
 const colorMap = {
   primary: "bg-primary",
@@ -61,13 +45,70 @@ const colorMap = {
   accent: "bg-accent",
 };
 
+const benefitsStrip = [
+  { icon: Award, text: "Recettes validées par nos nutritionnistes" },
+  { icon: Clock, text: "Préparation rapide, moins de 30 min" },
+  { icon: Users, text: "Adaptées aux besoins des seniors" },
+];
+
 const Recipes = () => {
   const [active, setActive] = useState("Toutes");
+  const [recipes, setRecipes] = useState<RecipeCard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filtered = gridItems.filter((item) => {
+  // Fetch recipes from backend
+  useEffect(() => {
+    const loadRecipes = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const category = active === "Toutes" ? undefined : active;
+        const data = await fetchPublishedRecipes(category);
+        
+        const recipesCards: RecipeCard[] = data.map((recipe) => ({
+          type: "recipe" as const,
+          slug: recipe.slug,
+          title: recipe.title,
+          category: recipe.category,
+          time: recipe.prep_time,
+          servings: recipe.servings,
+          image: recipe.image || "https://images.unsplash.com/photo-1495544871167-ce0a60e35c02?w=512&h=512&fit=crop",
+        }));
+        
+        setRecipes(recipesCards);
+      } catch (err) {
+        console.error("Error loading recipes:", err);
+        setError("Erreur lors du chargement des recettes");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRecipes();
+  }, [active]);
+
+  // Promo cards (static content)
+  const promoCards: PromoCard[] = [
+    { type: "promo", icon: Sparkles, title: "Boostez vos recettes", desc: "Ajoutez Nutriwell Boisson Fruitée à vos smoothies pour un apport protéiné complet.", color: "primary" },
+    { type: "promo", icon: Heart, title: "Astuce bien-être", desc: "Un petit-déjeuner riche en protéines aide à maintenir votre énergie toute la matinée.", color: "secondary" },
+    { type: "promo", icon: Leaf, title: "Le saviez-vous ?", desc: "Les fibres alimentaires favorisent une digestion saine et un confort intestinal durable.", color: "accent" },
+  ];
+
+  // Combine recipes and promos for display
+  const filtered = recipes.filter((item) => {
     if (active === "Toutes") return true;
-    if (item.type === "promo") return true;
     return item.category === active;
+  });
+
+  // Inject promos at regular intervals for visual balance
+  const gridItems: GridItem[] = [];
+  filtered.forEach((recipe, index) => {
+    gridItems.push(recipe);
+    // Insert promo after every 2 recipes
+    if ((index + 1) % 2 === 0 && promoCards.length > 0) {
+      gridItems.push(promoCards[Math.floor(Math.random() * promoCards.length)]);
+    }
   });
 
   return (
@@ -133,75 +174,101 @@ const Recipes = () => {
       {/* ── Recipe Grid ── */}
       <section className="pb-20">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((item, i) =>
-              item.type === "recipe" ? (
-                <ScrollReveal key={i} delay={i * 0.05}>
-                  <div className="bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 group">
-                    <div className="aspect-[4/3] overflow-hidden">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                        width={512}
-                        height={512}
-                      />
+          {error && (
+            <div className="mb-8 p-4 bg-destructive/10 border border-destructive text-destructive rounded-lg">
+              {error}
+            </div>
+          )}
+          
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="bg-muted rounded-2xl overflow-hidden h-80 animate-pulse" />
+              ))}
+            </div>
+          ) : recipes.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">Aucune recette trouvée pour cette catégorie.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {gridItems.map((item, i) =>
+                item.type === "recipe" ? (
+                  <ScrollReveal key={i} delay={i * 0.05}>
+                    <div className="bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 group">
+                      <div className="aspect-[4/3] overflow-hidden">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                          width={512}
+                          height={512}
+                        />
+                      </div>
+                      <div className="p-5">
+                        <span className="text-xs font-semibold text-primary uppercase tracking-wide">
+                          {item.category}
+                        </span>
+                        <h3 className="font-heading text-base font-bold text-foreground mt-1 mb-3">
+                          {item.title}
+                        </h3>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
+                          <span className="flex items-center gap-1"><Clock size={14} /> {item.time}</span>
+                          <span className="flex items-center gap-1"><Users size={14} /> {item.servings} pers.</span>
+                        </div>
+                        <Link to={`/recipes/${item.slug}`} className="text-secondary text-sm font-semibold hover:underline">
+                          Voir la recette →
+                        </Link>
+                      </div>
                     </div>
-                    <div className="p-5">
-                      <span className="text-xs font-semibold text-primary uppercase tracking-wide">
-                        {item.category}
-                      </span>
-                      <h3 className="font-heading text-base font-bold text-foreground mt-1 mb-3">
+                  </ScrollReveal>
+                ) : (
+                  /* ── Promo Card ── */
+                  <ScrollReveal key={i} delay={i * 0.05}>
+                    <div className={`${colorMap[item.color]} rounded-2xl p-8 flex flex-col justify-center h-full min-h-[280px]`}>
+                      <item.icon className="text-primary-foreground mb-4" size={32} />
+                      <h3 className="font-heading text-xl font-bold text-primary-foreground mb-3">
                         {item.title}
                       </h3>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
-                        <span className="flex items-center gap-1"><Clock size={14} /> {item.time}</span>
-                        <span className="flex items-center gap-1"><Users size={14} /> {item.servings} pers.</span>
-                      </div>
-                      <Link to={`/recipes/${item.slug}`} className="text-secondary text-sm font-semibold hover:underline">
-                        Voir la recette →
-                      </Link>
+                      <p className="text-primary-foreground/90 text-sm leading-relaxed mb-5">
+                        {item.desc}
+                      </p>
+                      <a href="#" className="text-primary-foreground text-sm font-semibold underline underline-offset-4">
+                        En savoir plus →
+                      </a>
                     </div>
-                  </div>
-                </ScrollReveal>
-              ) : (
-                /* ── Promo Card ── */
-                <ScrollReveal key={i} delay={i * 0.05}>
-                  <div className={`${colorMap[item.color]} rounded-2xl p-8 flex flex-col justify-center h-full min-h-[280px]`}>
-                    <item.icon className="text-primary-foreground mb-4" size={32} />
-                    <h3 className="font-heading text-xl font-bold text-primary-foreground mb-3">
-                      {item.title}
-                    </h3>
-                    <p className="text-primary-foreground/90 text-sm leading-relaxed mb-5">
-                      {item.desc}
-                    </p>
-                    <a href="#" className="text-primary-foreground text-sm font-semibold underline underline-offset-4">
-                      En savoir plus →
-                    </a>
-                  </div>
-                </ScrollReveal>
-              )
-            )}
-          </div>
+                  </ScrollReveal>
+                )
+              )}
+            </div>
+          )}
         </div>
       </section>
 
       {/* ── Benefits Strip ── */}
-      <section className="bg-muted py-14">
-        <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
-            {benefitsStrip.map((b, i) => (
-              <ScrollReveal key={i} delay={i * 0.1}>
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <b.icon className="text-primary" size={22} />
+      <section className="relative">
+        <div className="absolute top-0 left-0 right-0 rotate-180">
+          <WaveDivider fillColor="hsl(0 0% 100%)" />
+        </div>
+        <div className="bg-muted py-20 md:py-24">
+          <div className="container mx-auto px-6">
+            <div className="grid md:grid-cols-3 gap-8 text-center">
+              {benefitsStrip.map((b, i) => (
+                <ScrollReveal key={i} delay={i * 0.1}>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <b.icon className="text-primary" size={22} />
+                    </div>
+                    <p className="text-sm font-semibold text-foreground">{b.text}</p>
                   </div>
-                  <p className="text-sm font-semibold text-foreground">{b.text}</p>
-                </div>
-              </ScrollReveal>
-            ))}
+                </ScrollReveal>
+              ))}
+            </div>
           </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0">
+          <WaveDivider fillColor="hsl(var(--brand-dark))" />
         </div>
       </section>
 
