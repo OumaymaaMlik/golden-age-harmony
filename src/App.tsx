@@ -9,6 +9,7 @@ import ProductDetail from "./pages/ProductDetail.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import About from "./pages/About.tsx";
 import Recipes from "./pages/Recipes.tsx";
+import RecipeDetail from "./pages/RecipeDetail.tsx";
 import StoreLocator from "./pages/StoreLocator.tsx";
 import Contact from "./pages/Contact.tsx";
 import AdminLogin from "./pages/admin/AdminLogin.tsx";

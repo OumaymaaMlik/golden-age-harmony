@@ -159,9 +159,9 @@ const Recipes = () => {
                         <span className="flex items-center gap-1"><Clock size={14} /> {item.time}</span>
                         <span className="flex items-center gap-1"><Users size={14} /> {item.servings} pers.</span>
                       </div>
-                      <a href="#" className="text-secondary text-sm font-semibold hover:underline">
+                      <Link to={`/recipes/${item.slug}`} className="text-secondary text-sm font-semibold hover:underline">
                         Voir la recette →
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </ScrollReveal>
