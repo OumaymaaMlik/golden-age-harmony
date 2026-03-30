@@ -19,6 +19,7 @@ const filters = ["Toutes", "Petit-déjeuner", "Déjeuner", "Snacks", "Boissons"]
 
 interface RecipeCard {
   type: "recipe";
+  slug: string;
   title: string;
   category: string;
   time: string;
