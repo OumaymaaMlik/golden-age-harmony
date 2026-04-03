@@ -243,7 +243,7 @@ const About = () => {
           <div className="grid md:grid-cols-3 gap-8">
             {benefits.map((b, i) => (
               <ScrollReveal key={b.title} delay={i * 0.1}>
-                <div className="bg-card rounded-2xl p-8 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="organic-card p-8 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
                     <b.icon className="text-primary" size={26} />
                   </div>
