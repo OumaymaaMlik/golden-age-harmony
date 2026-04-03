@@ -6,14 +6,14 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 4%;
+    --background: 140 20% 99%;
+    --foreground: 160 40% 5%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 4%;
+    --card: 140 15% 98%;
+    --card-foreground: 160 40% 5%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
+    --popover: 140 15% 98%;
+    --popover-foreground: 160 40% 5%;
 
     --primary: 196 100% 50%;
     --primary-foreground: 0 0% 100%;
@@ -21,18 +21,18 @@
     --secondary: 147 100% 37%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 160 30% 96%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 150 25% 95%;
+    --muted-foreground: 160 10% 40%;
 
     --accent: 167 82% 55%;
-    --accent-foreground: 0 0% 4%;
+    --accent-foreground: 160 40% 5%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 160 20% 90%;
-    --input: 160 20% 90%;
-    --ring: 196 100% 50%;
+    --border: 150 18% 88%;
+    --input: 150 18% 88%;
+    --ring: 147 100% 37%;
 
     --radius: 0.75rem;
 
@@ -40,6 +40,12 @@
     --brand-green: 147 100% 37%;
     --brand-teal: 167 82% 55%;
     --brand-dark: 160 40% 5%;
+
+    /* Biophilic tokens */
+    --leaf-light: 145 30% 94%;
+    --leaf-mid: 147 40% 88%;
+    --sunlight: 42 60% 95%;
+    --earth: 30 15% 92%;
   }
 }
 
@@ -50,6 +56,8 @@
 
   body {
     @apply bg-background text-foreground font-body antialiased;
+    /* Subtle paper grain texture */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.018'/%3E%3C/svg%3E");
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -78,6 +86,37 @@
   }
 
   .decorative-dot {
-    @apply absolute rounded-full opacity-15;
+    @apply absolute rounded-full opacity-10;
+  }
+
+  /* Biophilic leaf accent — subtle inline SVG */
+  .leaf-accent::before {
+    content: '';
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 5C50 5 15 30 15 60C15 80 30 95 50 95C70 95 85 80 85 60C85 30 50 5 50 5Z' fill='none' stroke='%2300BF63' stroke-width='1.5'/%3E%3Cpath d='M50 20V85' fill='none' stroke='%2300BF63' stroke-width='1'/%3E%3Cpath d='M50 40C40 35 25 40 25 55' fill='none' stroke='%2300BF63' stroke-width='0.8'/%3E%3Cpath d='M50 55C60 50 75 52 75 62' fill='none' stroke='%2300BF63' stroke-width='0.8'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    pointer-events: none;
+  }
+
+  /* Organic card style */
+  .organic-card {
+    @apply bg-card rounded-2xl border border-border/60 shadow-sm;
+    transition: all 180ms ease;
+  }
+  .organic-card:hover {
+    @apply shadow-md border-secondary/20;
+    transform: translateY(-2px);
+  }
+
+  /* Sunlight hover effect */
+  .sunlight-hover {
+    transition: all 180ms ease;
+  }
+  .sunlight-hover:hover {
+    filter: brightness(1.04);
   }
 }

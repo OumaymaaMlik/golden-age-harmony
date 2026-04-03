@@ -29,7 +29,14 @@ const benefits = [
 
 const About = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Biophilic leaf accent */}
+      <div className="fixed top-40 right-4 w-20 h-20 opacity-[0.03] animate-gentle-sway pointer-events-none z-0">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 5C50 5 15 30 15 60C15 80 30 95 50 95C70 95 85 80 85 60C85 30 50 5 50 5Z" stroke="hsl(147 100% 37%)" strokeWidth="1.5"/>
+          <path d="M50 20V85" stroke="hsl(147 100% 37%)" strokeWidth="1"/>
+        </svg>
+      </div>
       <Navbar />
 
       {/* ── Hero ── */}
@@ -236,9 +243,9 @@ const About = () => {
           <div className="grid md:grid-cols-3 gap-8">
             {benefits.map((b, i) => (
               <ScrollReveal key={b.title} delay={i * 0.1}>
-                <div className="bg-card rounded-2xl p-8 text-center shadow-sm hover:shadow-md transition-shadow">
-                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
-                    <b.icon className="text-primary" size={26} />
+                <div className="organic-card p-8 text-center">
+                  <div className="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-5">
+                    <b.icon className="text-secondary" size={26} />
                   </div>
                   <h3 className="font-heading text-lg font-bold text-foreground mb-3">
                     {b.title}

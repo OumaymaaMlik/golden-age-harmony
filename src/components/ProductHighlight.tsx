@@ -18,11 +18,19 @@ const ProductHighlight = () => {
   const featured = products.slice(0, 3);
 
   return (
-    <section id="products" className="relative bg-muted py-24 overflow-hidden">
-      {/* Decorative circles */}
+    <section id="products" className="relative bg-muted py-28 overflow-hidden">
+      {/* Biophilic leaf accent */}
+      <div className="absolute top-16 right-[12%] w-28 h-28 opacity-[0.04] animate-gentle-sway pointer-events-none">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 5C50 5 15 30 15 60C15 80 30 95 50 95C70 95 85 80 85 60C85 30 50 5 50 5Z" stroke="hsl(147 100% 37%)" strokeWidth="1.5"/>
+          <path d="M50 20V85" stroke="hsl(147 100% 37%)" strokeWidth="1"/>
+          <path d="M50 40C40 35 25 40 25 55" stroke="hsl(147 100% 37%)" strokeWidth="0.8"/>
+        </svg>
+      </div>
+
+      {/* Organic decorative circles */}
       <div className="decorative-dot w-40 h-40 bg-accent top-10 right-[10%]" />
       <div className="decorative-dot w-24 h-24 bg-accent bottom-20 left-[5%]" />
-      <div className="decorative-dot w-16 h-16 bg-primary top-1/2 left-[15%]" />
 
       <div className="container mx-auto px-6">
         <ScrollReveal>
@@ -43,8 +51,8 @@ const ProductHighlight = () => {
           <div className="grid md:grid-cols-3 gap-6 mb-10">
             {featured.map((product, i) => (
               <ScrollReveal key={product.slug} delay={i * 0.08}>
-                <Link to={`/products/${product.slug}`} className="group block rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-md transition-all">
-                  <div className="aspect-[4/3] overflow-hidden bg-background">
+                <Link to={`/products/${product.slug}`} className="group block organic-card overflow-hidden">
+                  <div className="aspect-[4/3] overflow-hidden bg-leaf-light">
                     <img
                       src={product.image}
                       alt={product.name}
@@ -54,7 +62,7 @@ const ProductHighlight = () => {
                   </div>
                   <div className="p-4">
                     <p className="text-xs text-muted-foreground mb-1">{product.flavors}</p>
-                    <h3 className="font-heading text-lg font-bold text-foreground">{product.name}</h3>
+                    <h3 className="font-heading text-lg font-bold text-foreground group-hover:text-secondary transition-colors duration-200">{product.name}</h3>
                   </div>
                 </Link>
               </ScrollReveal>
@@ -65,7 +73,7 @@ const ProductHighlight = () => {
         <div className="text-center">
           <Link
             to="/products"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3.5 rounded-full font-semibold hover:bg-primary/90 transition-colors text-[15px]"
+            className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-8 py-3.5 rounded-full font-semibold hover:bg-secondary/90 hover:shadow-md transition-all duration-200 text-[15px]"
           >
             Voir tous les produits
           </Link>
@@ -73,7 +81,7 @@ const ProductHighlight = () => {
       </div>
 
       <div className="absolute bottom-0 left-0 right-0">
-        <WaveDivider fillColor="hsl(40 30% 97%)" />
+        <WaveDivider fillColor="hsl(var(--sunlight))" />
       </div>
     </section>
   );
