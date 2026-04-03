@@ -141,7 +141,15 @@ const Contact = () => {
   const errorClass = "text-xs text-destructive mt-1 font-medium";
 
   return (
-    <div className="min-h-screen bg-background font-body">
+    <div className="min-h-screen bg-background font-body relative">
+      {/* Biophilic leaf accent */}
+      <div className="fixed top-48 right-6 w-20 h-20 opacity-[0.03] animate-gentle-sway pointer-events-none z-0">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 5C50 5 15 30 15 60C15 80 30 95 50 95C70 95 85 80 85 60C85 30 50 5 50 5Z" stroke="hsl(147 100% 37%)" strokeWidth="1.5"/>
+          <path d="M50 20V85" stroke="hsl(147 100% 37%)" strokeWidth="1"/>
+          <path d="M50 40C40 35 25 40 25 55" stroke="hsl(147 100% 37%)" strokeWidth="0.8"/>
+        </svg>
+      </div>
       <Navbar />
 
       {/* Hero Header */}
