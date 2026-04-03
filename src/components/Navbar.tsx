@@ -7,7 +7,6 @@ const navLinks = [
   { label: "Nos Produits", href: "/products" },
   { label: "Qui Sommes-Nous", href: "/about" },
   { label: "Nos Recettes et Astuces", href: "/recipes" },
-
 ];
 
 const Navbar = () => {
@@ -39,8 +38,8 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background ${
-        scrolled ? "shadow-md py-3 border-b border-accent/40" : "py-4 border-b border-accent/20"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/95 backdrop-blur-sm ${
+        scrolled ? "shadow-md py-3 border-b border-secondary/15" : "py-4 border-b border-secondary/10"
       }`}
     >
       <div className="container mx-auto flex items-center justify-between px-6">
@@ -60,8 +59,8 @@ const Navbar = () => {
                     handleNavClick(link.href);
                   }
                 }}
-                className={`font-medium transition-colors duration-200 text-[15px] ${
-                  isActive(link.href) ? "text-primary" : "text-foreground/70 hover:text-primary"
+                className={`font-medium transition-all duration-200 text-[15px] ${
+                  isActive(link.href) ? "text-secondary" : "text-foreground/70 hover:text-secondary"
                 }`}
               >
                 {link.label}
@@ -70,8 +69,8 @@ const Navbar = () => {
               <Link
                 key={link.label}
                 to={link.href}
-                className={`font-medium transition-colors duration-200 text-[15px] ${
-                  isActive(link.href) ? "text-primary font-semibold" : "text-foreground/70 hover:text-primary"
+                className={`font-medium transition-all duration-200 text-[15px] ${
+                  isActive(link.href) ? "text-secondary font-semibold" : "text-foreground/70 hover:text-secondary"
                 }`}
               >
                 {link.label}
@@ -81,11 +80,11 @@ const Navbar = () => {
         </nav>
 
         <div className="hidden lg:flex items-center gap-5">
-          <Link to="/store-locator" className="text-foreground/50 hover:text-primary transition-colors flex flex-col items-center" aria-label="Trouver une pharmacie">
+          <Link to="/store-locator" className="text-foreground/50 hover:text-secondary transition-all duration-200 flex flex-col items-center" aria-label="Trouver une pharmacie">
             <MapPin size={20} />
             <span className="text-xs mt-1">Location</span>
           </Link>
-          <Link to="/contact" className="text-foreground/50 hover:text-primary transition-colors flex flex-col items-center" aria-label="Contact">
+          <Link to="/contact" className="text-foreground/50 hover:text-secondary transition-all duration-200 flex flex-col items-center" aria-label="Contact">
             <Phone size={20} />
             <span className="text-xs mt-1">Contact</span>
           </Link>
@@ -101,13 +100,13 @@ const Navbar = () => {
       </div>
 
       {mobileOpen && (
-        <div className="lg:hidden bg-background border-t border-accent/20 px-6 py-6 space-y-4">
+        <div className="lg:hidden bg-background/98 backdrop-blur-sm border-t border-secondary/10 px-6 py-6 space-y-4">
           {navLinks.map((link) =>
             link.href.startsWith("/#") ? (
               <a
                 key={link.label}
                 href={link.href}
-                className="block text-foreground/70 hover:text-primary font-medium text-lg"
+                className="block text-foreground/70 hover:text-secondary font-medium text-lg transition-all duration-200"
                 onClick={() => setMobileOpen(false)}
               >
                 {link.label}
@@ -116,7 +115,7 @@ const Navbar = () => {
               <Link
                 key={link.label}
                 to={link.href}
-                className="block text-foreground/70 hover:text-primary font-medium text-lg"
+                className="block text-foreground/70 hover:text-secondary font-medium text-lg transition-all duration-200"
                 onClick={() => setMobileOpen(false)}
               >
                 {link.label}
@@ -124,8 +123,8 @@ const Navbar = () => {
             )
           )}
           <div className="flex items-center gap-4 pt-4 border-t border-border">
-            <Link to="/store-locator" className="text-foreground/50 hover:text-primary" onClick={() => setMobileOpen(false)}><MapPin size={20} /></Link>
-            <Link to="/contact" className="text-foreground/50 hover:text-primary" onClick={() => setMobileOpen(false)}><Phone size={20} /></Link>
+            <Link to="/store-locator" className="text-foreground/50 hover:text-secondary transition-all duration-200" onClick={() => setMobileOpen(false)}><MapPin size={20} /></Link>
+            <Link to="/contact" className="text-foreground/50 hover:text-secondary transition-all duration-200" onClick={() => setMobileOpen(false)}><Phone size={20} /></Link>
           </div>
         </div>
       )}

@@ -13,9 +13,14 @@ const cards = [
 
 const InfoCardsSection = () => {
   return (
-    <section id="info" className="relative py-24 bg-background overflow-hidden">
-      <div className="decorative-dot w-20 h-20 bg-accent -top-4 right-[5%]" />
-      <div className="decorative-dot w-12 h-12 bg-primary bottom-10 left-[3%]" />
+    <section id="info" className="relative py-28 bg-background overflow-hidden">
+      {/* Biophilic leaf accent */}
+      <div className="absolute top-20 right-[4%] w-24 h-24 opacity-[0.04] animate-gentle-sway pointer-events-none">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 5C50 5 15 30 15 60C15 80 30 95 50 95C70 95 85 80 85 60C85 30 50 5 50 5Z" stroke="hsl(147 100% 37%)" strokeWidth="1.5"/>
+          <path d="M50 20V85" stroke="hsl(147 100% 37%)" strokeWidth="1"/>
+        </svg>
+      </div>
 
       <div className="container mx-auto px-6">
         <ScrollReveal>
@@ -32,7 +37,7 @@ const InfoCardsSection = () => {
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {cards.map((card, i) => (
             <ScrollReveal key={card.title} delay={i * 0.15}>
-              <div className="group bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 border border-border">
+              <div className="group organic-card overflow-hidden">
                 <div className="aspect-[5/4] overflow-hidden">
                   <img
                     src={card.image}
@@ -44,12 +49,12 @@ const InfoCardsSection = () => {
                   />
                 </div>
                 <div className="p-6">
-                  <h3 className="font-heading text-lg font-bold mb-3 text-black">
+                  <h3 className="font-heading text-lg font-bold mb-3 text-foreground">
                     {card.title}
                   </h3>
                   <a
                     href={card.link}
-                    className="inline-flex items-center gap-1.5 text-primary font-semibold text-sm hover:gap-3 transition-all duration-200"
+                    className="inline-flex items-center gap-1.5 text-secondary font-semibold text-sm hover:gap-3 transition-all duration-200"
                   >
                     En savoir plus <ArrowRight size={16} />
                   </a>
@@ -63,7 +68,7 @@ const InfoCardsSection = () => {
           <div className="text-center">
             <a
               href="#"
-              className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-8 py-3.5 rounded-full font-semibold hover:bg-secondary/90 transition-colors text-[15px]"
+              className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-8 py-3.5 rounded-full font-semibold hover:bg-secondary/90 hover:shadow-md transition-all duration-200 text-[15px]"
             >
               Découvrir nos conseils
             </a>
@@ -72,7 +77,7 @@ const InfoCardsSection = () => {
       </div>
 
       <div className="absolute bottom-0 left-0 right-0">
-        <WaveDivider fillColor="hsl(160 30% 97%)" />
+        <WaveDivider fillColor="hsl(var(--muted))" />
       </div>
     </section>
   );
