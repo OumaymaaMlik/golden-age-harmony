@@ -201,7 +201,7 @@ const Recipes = () => {
               {gridItems.map((item, i) =>
                 item.type === "recipe" ? (
                   <ScrollReveal key={i} delay={i * 0.05}>
-                    <div className="bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 group">
+                    <div className="organic-card overflow-hidden group">
                       <div className="aspect-[4/3] overflow-hidden">
                         <img
                           src={item.image}

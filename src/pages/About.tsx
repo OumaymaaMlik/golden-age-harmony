@@ -244,8 +244,8 @@ const About = () => {
             {benefits.map((b, i) => (
               <ScrollReveal key={b.title} delay={i * 0.1}>
                 <div className="organic-card p-8 text-center">
-                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
-                    <b.icon className="text-primary" size={26} />
+                  <div className="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-5">
+                    <b.icon className="text-secondary" size={26} />
                   </div>
                   <h3 className="font-heading text-lg font-bold text-foreground mb-3">
                     {b.title}

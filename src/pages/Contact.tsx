@@ -431,7 +431,7 @@ const Contact = () => {
                 { icon: Clock, title: "Support dédié", desc: "Un interlocuteur qualifié pour chaque type de demande.", color: "accent" },
               ].map((b, i) => (
                 <ScrollReveal key={i} delay={i * 0.1}>
-                  <div className="text-center p-6 rounded-2xl bg-card hover:shadow-md transition-all duration-200">
+                  <div className="text-center p-6 organic-card">
                     <div className={`w-14 h-14 rounded-xl bg-${b.color}/10 flex items-center justify-center mx-auto mb-4`}>
                       <b.icon className={`text-${b.color}`} size={24} />
                     </div>
