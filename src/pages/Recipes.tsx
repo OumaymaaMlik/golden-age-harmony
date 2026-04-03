@@ -112,7 +112,13 @@ const Recipes = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Biophilic leaf accent */}
+      <div className="fixed bottom-20 left-4 w-16 h-16 opacity-[0.03] animate-gentle-sway pointer-events-none z-0">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 5C50 5 15 30 15 60C15 80 30 95 50 95C70 95 85 80 85 60C85 30 50 5 50 5Z" stroke="hsl(147 100% 37%)" strokeWidth="1.5"/>
+        </svg>
+      </div>
       <Navbar />
 
       {/* ── Hero ── */}
