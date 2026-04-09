@@ -73,6 +73,12 @@ const AdminRecipes = () => {
               Rapports contact
             </Link>
             <Link
+              to="/admin/content"
+              className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-foreground hover:bg-muted"
+            >
+              Contenu pages
+            </Link>
+            <Link
               to="/admin/recipes/new"
               className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >

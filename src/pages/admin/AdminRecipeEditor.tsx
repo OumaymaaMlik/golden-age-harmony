@@ -2,6 +2,7 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RecipeFormInput, fetchAdminRecipeById, saveAdminRecipe, uploadRecipeImage } from "@/lib/recipe-service";
+import { parseNutritionArray, stringifyNutritionArray } from "@/lib/nutrition-transformer";
 
 const emptyForm: RecipeFormInput = {
   slug: "",
@@ -15,11 +16,34 @@ const emptyForm: RecipeFormInput = {
   steps: [],
   tips: [],
   nutrition: [],
+  nutritionTable: {
+    headers: ["Nutriment", "Pour 100ml", "Par portion"],
+    rows: [],
+  },
   isPublished: false,
 };
 
 const toLines = (items: string[]) => items.join("\n");
 const fromLines = (raw: string) => raw.split("\n").map((line) => line.trim()).filter(Boolean);
+const createNutritionHeaders = (cols: number) =>
+  Array.from({ length: Math.max(1, cols) }, (_, index) => {
+    if (index === 0) return "Nutriment";
+    if (index === 1) return "Pour 100ml";
+    if (index === 2) return "Par portion";
+    return `Colonne ${index + 1}`;
+  });
+
+const createNutritionTable = (rows: number, cols: number) =>
+  Array.from({ length: Math.max(1, rows) }, () => Array.from({ length: Math.max(1, cols) }, () => ""));
+
+const resizeNutritionTable = (table: string[][], rows: number, cols: number) => {
+  const targetRows = Math.max(1, rows);
+  const targetCols = Math.max(1, cols);
+
+  return Array.from({ length: targetRows }, (_, rowIndex) =>
+    Array.from({ length: targetCols }, (_, colIndex) => table[rowIndex]?.[colIndex] ?? ""),
+  );
+};
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const slugify = (value: string) =>
@@ -43,7 +67,10 @@ const AdminRecipeEditor = () => {
   const [ingredientsText, setIngredientsText] = useState("");
   const [stepsText, setStepsText] = useState("");
   const [tipsText, setTipsText] = useState("");
-  const [nutritionText, setNutritionText] = useState("");
+  const [nutritionRows, setNutritionRows] = useState(4);
+  const [nutritionCols, setNutritionCols] = useState(3);
+  const [nutritionHeaders, setNutritionHeaders] = useState<string[]>(() => createNutritionHeaders(3));
+  const [nutritionTable, setNutritionTable] = useState<string[][]>(() => createNutritionTable(4, 3));
   const [saveError, setSaveError] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -60,7 +87,19 @@ const AdminRecipeEditor = () => {
     setIngredientsText(toLines(data.ingredients));
     setStepsText(toLines(data.steps));
     setTipsText(toLines(data.tips));
-    setNutritionText(toLines(data.nutrition));
+
+    const fallbackRows = parseNutritionArray(data.nutrition ?? []).map((row) => [row.nutriment, row.per100ml, row.perPortion]);
+    const incomingHeaders = data.nutritionTable?.headers?.length
+      ? data.nutritionTable.headers.map((header) => (header ?? "").trim() || "-")
+      : createNutritionHeaders(3);
+    const incomingCols = Math.max(1, incomingHeaders.length);
+    const sourceRows = data.nutritionTable?.rows?.length ? data.nutritionTable.rows : fallbackRows;
+    const incomingRows = Math.max(1, sourceRows.length || 1);
+
+    setNutritionRows(incomingRows);
+    setNutritionCols(incomingCols);
+    setNutritionHeaders(Array.from({ length: incomingCols }, (_, index) => incomingHeaders[index] ?? `Colonne ${index + 1}`));
+    setNutritionTable(resizeNutritionTable(sourceRows, incomingRows, incomingCols));
   }, [data]);
 
   const saveMutation = useMutation({
@@ -74,14 +113,67 @@ const AdminRecipeEditor = () => {
   });
 
   const normalizedPayload = useMemo<RecipeFormInput>(() => {
+    const nutritionTablePayload = {
+      headers: nutritionHeaders.map((header, index) => header.trim() || `Colonne ${index + 1}`),
+      rows: nutritionTable
+        .map((row) => row.map((cell) => cell.trim()))
+        .filter((row) => row.some((cell) => cell.length > 0)),
+    };
+
+    const firstThreeColumns = nutritionTablePayload.rows.map((row) => ({
+      nutriment: row[0] ?? "",
+      per100ml: row[1] ?? "",
+      perPortion: row[2] ?? "",
+    }));
+
     return {
       ...form,
       ingredients: fromLines(ingredientsText),
       steps: fromLines(stepsText),
       tips: fromLines(tipsText),
-      nutrition: fromLines(nutritionText),
+      nutrition: stringifyNutritionArray(
+        firstThreeColumns.filter((row) => row.nutriment || row.per100ml || row.perPortion),
+      ),
+      nutritionTable: nutritionTablePayload,
     };
-  }, [form, ingredientsText, nutritionText, stepsText, tipsText]);
+  }, [form, ingredientsText, nutritionHeaders, nutritionTable, stepsText, tipsText]);
+
+  const onNutritionRowsChange = (raw: string) => {
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) return;
+    const nextRows = Math.max(1, Math.floor(parsed));
+    setNutritionRows(nextRows);
+    setNutritionTable((prev) => resizeNutritionTable(prev, nextRows, nutritionCols));
+  };
+
+  const onNutritionColsChange = (raw: string) => {
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) return;
+    const nextCols = Math.max(1, Math.floor(parsed));
+    const generatedHeaders = createNutritionHeaders(nextCols);
+
+    setNutritionCols(nextCols);
+    setNutritionHeaders((prev) =>
+      Array.from({ length: nextCols }, (_, index) => prev[index] ?? generatedHeaders[index] ?? `Colonne ${index + 1}`),
+    );
+    setNutritionTable((prev) => resizeNutritionTable(prev, nutritionRows, nextCols));
+  };
+
+  const onNutritionHeaderChange = (colIndex: number, value: string) => {
+    setNutritionHeaders((prev) => {
+      const next = Array.from({ length: nutritionCols }, (_, index) => prev[index] ?? createNutritionHeaders(nutritionCols)[index]);
+      next[colIndex] = value;
+      return next;
+    });
+  };
+
+  const onNutritionCellChange = (rowIndex: number, colIndex: number, value: string) => {
+    setNutritionTable((prev) => {
+      const next = resizeNutritionTable(prev, nutritionRows, nutritionCols);
+      next[rowIndex][colIndex] = value;
+      return next;
+    });
+  };
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -310,12 +402,65 @@ const AdminRecipeEditor = () => {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Nutrition (1 ligne = 1 info)</label>
-              <textarea
-                value={nutritionText}
-                onChange={(e) => setNutritionText(e.target.value)}
-                className="mt-1 min-h-[140px] w-full rounded-lg border border-border bg-background px-3 py-2"
-              />
+              <label className="text-sm font-medium text-foreground">Tableau nutritionnel</label>
+              <div className="mt-1 space-y-3 rounded-lg border border-border p-3">
+                <div className="flex flex-wrap items-end gap-3">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Lignes</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={nutritionRows}
+                      onChange={(e) => onNutritionRowsChange(e.target.value)}
+                      className="mt-1 w-24 rounded-lg border border-border bg-background px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Colonnes</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={nutritionCols}
+                      onChange={(e) => onNutritionColsChange(e.target.value)}
+                      className="mt-1 w-24 rounded-lg border border-border bg-background px-3 py-2"
+                    />
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto rounded-lg border border-border">
+                  <table className="w-full min-w-[520px] border-collapse text-sm">
+                    <thead>
+                      <tr className="bg-muted/50">
+                        {Array.from({ length: nutritionCols }).map((_, colIndex) => (
+                          <th key={colIndex} className="border border-border px-2 py-2 text-left">
+                            <input
+                              value={nutritionHeaders[colIndex] ?? ""}
+                              onChange={(e) => onNutritionHeaderChange(colIndex, e.target.value)}
+                              placeholder={`Colonne ${colIndex + 1}`}
+                              className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm font-medium"
+                            />
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Array.from({ length: nutritionRows }).map((_, rowIndex) => (
+                        <tr key={rowIndex}>
+                          {Array.from({ length: nutritionCols }).map((__, colIndex) => (
+                            <td key={`${rowIndex}-${colIndex}`} className="border border-border p-1.5">
+                              <input
+                                value={nutritionTable[rowIndex]?.[colIndex] ?? ""}
+                                onChange={(e) => onNutritionCellChange(rowIndex, colIndex, e.target.value)}
+                                className="w-full rounded-md border border-border bg-background px-2 py-1.5"
+                              />
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
 

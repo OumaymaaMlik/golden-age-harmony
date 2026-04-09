@@ -1,8 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { isCurrentUserAdmin, signInWithEmail } from "@/lib/admin-service";
-import { supabase } from "@/lib/supabase";
+import { getCurrentSession, isCurrentUserAdmin, signInWithEmail, signOut } from "@/lib/admin-service";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -16,9 +15,7 @@ const AdminLogin = () => {
   const { data: alreadyAdminChecked, isLoading } = useQuery({
     queryKey: ["admin-login-check"],
     queryFn: async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const session = await getCurrentSession();
 
       if (!session) return false;
       return isCurrentUserAdmin();
@@ -35,7 +32,7 @@ const AdminLogin = () => {
       const isAdmin = await isCurrentUserAdmin();
 
       if (!isAdmin) {
-        await supabase.auth.signOut();
+        await signOut();
         setErrorMsg("Ce compte n'a pas les droits administrateur.");
         return;
       }

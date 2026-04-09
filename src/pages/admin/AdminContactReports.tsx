@@ -101,6 +101,12 @@ const AdminContactReports = () => {
             >
               Recettes
             </Link>
+            <Link
+              to="/admin/content"
+              className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-foreground hover:bg-muted"
+            >
+              Contenu pages
+            </Link>
             <button
               onClick={onLogout}
               className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-foreground hover:bg-muted"

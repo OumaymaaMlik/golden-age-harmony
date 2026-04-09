@@ -60,6 +60,7 @@ const RecipeDetail = () => {
           ...recipeData,
           // Parse nutrition array for display
           nutritionForDisplay: formatNutritionForDisplay(recipeData.nutrition),
+          nutritionTable: recipeData.nutritionTable,
           heroImage: recipeData.image || heroImg,
         });
         setSimilarRecipes(similar);
@@ -193,7 +194,38 @@ const RecipeDetail = () => {
               {/* Nutrition block — warm background, bolder values */}
               <div className="bg-secondary/10 border border-secondary/25 rounded-2xl p-5 mb-8">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-secondary mb-4">Valeurs nutritionnelles</h3>
-                {recipe.nutritionForDisplay && recipe.nutritionForDisplay.length > 0 ? (
+                {recipe.nutritionTable?.headers?.length && recipe.nutritionTable?.rows?.length ? (
+                  <div className="overflow-x-auto rounded-xl border border-secondary/20 bg-background/70">
+                    <table className="w-full min-w-[420px] text-sm">
+                      <thead>
+                        <tr className="bg-secondary/10">
+                          {recipe.nutritionTable.headers.map((header: string, headerIndex: number) => (
+                            <th
+                              key={`${header}-${headerIndex}`}
+                              className={`py-2.5 px-3 font-semibold text-foreground ${headerIndex === 0 ? "text-left" : "text-right"}`}
+                            >
+                              {header}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recipe.nutritionTable.rows.map((row: string[], rowIndex: number) => (
+                          <tr key={`nutrition-row-${rowIndex}`} className={rowIndex % 2 === 0 ? "bg-background" : "bg-secondary/5"}>
+                            {recipe.nutritionTable.headers.map((_: string, colIndex: number) => (
+                              <td
+                                key={`nutrition-cell-${rowIndex}-${colIndex}`}
+                                className={`py-2 px-3 ${colIndex === 0 ? "text-foreground" : "text-right text-muted-foreground"}`}
+                              >
+                                {row[colIndex] ?? ""}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : recipe.nutritionForDisplay && recipe.nutritionForDisplay.length > 0 ? (
                   <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
                     {recipe.nutritionForDisplay.map((n: any, idx: number) => (
                       <div key={idx} className="text-center py-2">

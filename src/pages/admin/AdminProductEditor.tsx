@@ -24,6 +24,10 @@ const emptyForm: AdminProductFormInput = {
   flavors: [],
   formats: [],
   nutrition: [],
+  nutritionTable: {
+    headers: ["Nutriment", "Pour 100ml", "Par portion"],
+    rows: [],
+  },
   usageTips: [],
   images: [],
   reviews: [],
@@ -31,6 +35,25 @@ const emptyForm: AdminProductFormInput = {
 
 const toLines = (items: string[]) => items.join("\n");
 const fromLines = (raw: string) => raw.split("\n").map((line) => line.trim()).filter(Boolean);
+const createNutritionHeaders = (cols: number) =>
+  Array.from({ length: Math.max(1, cols) }, (_, index) => {
+    if (index === 0) return "Nutriment";
+    if (index === 1) return "Pour 100ml";
+    if (index === 2) return "Par portion";
+    return `Colonne ${index + 1}`;
+  });
+
+const createNutritionTable = (rows: number, cols: number) =>
+  Array.from({ length: Math.max(1, rows) }, () => Array.from({ length: Math.max(1, cols) }, () => ""));
+
+const resizeNutritionTable = (table: string[][], rows: number, cols: number) => {
+  const targetRows = Math.max(1, rows);
+  const targetCols = Math.max(1, cols);
+
+  return Array.from({ length: targetRows }, (_, rowIndex) =>
+    Array.from({ length: targetCols }, (_, colIndex) => table[rowIndex]?.[colIndex] ?? ""),
+  );
+};
 
 const CATEGORY_OPTIONS = ["Boisson nutritionnelle", "Crème nutritionnelle", "Poudre nutritionnelle"];
 const TEXTURE_OPTIONS = ["Boisson", "Crème", "Poudre", "Gelée", "Purée", "Velouté", "Céréales"];
@@ -51,7 +74,10 @@ const AdminProductEditor = () => {
   const [flavorsText, setFlavorsText] = useState("");
   const [formatsText, setFormatsText] = useState("");
   const [imagesText, setImagesText] = useState("");
-  const [nutritionText, setNutritionText] = useState("");
+  const [nutritionRows, setNutritionRows] = useState(6);
+  const [nutritionCols, setNutritionCols] = useState(3);
+  const [nutritionHeaders, setNutritionHeaders] = useState<string[]>(() => createNutritionHeaders(3));
+  const [nutritionTable, setNutritionTable] = useState<string[][]>(() => createNutritionTable(6, 3));
   const [usageText, setUsageText] = useState("");
   const [reviewsText, setReviewsText] = useState("");
   const [saveError, setSaveError] = useState("");
@@ -73,11 +99,20 @@ const AdminProductEditor = () => {
     setFlavorsText(toLines(data.flavors));
     setFormatsText(toLines(data.formats));
     setImagesText(toLines(data.images));
-    setNutritionText(
-      data.nutrition
-        .map((row) => `${row.nutriment} | ${row.per100ml} | ${row.perPortion}`)
-        .join("\n"),
+    const fallbackRows = data.nutrition.map((row) => [row.nutriment ?? "", row.per100ml ?? "", row.perPortion ?? ""]);
+    const incomingHeaders = data.nutritionTable?.headers?.length
+      ? data.nutritionTable.headers.map((header) => (header ?? "").trim() || "-")
+      : createNutritionHeaders(3);
+    const incomingCols = Math.max(1, incomingHeaders.length);
+    const sourceRows = data.nutritionTable?.rows?.length ? data.nutritionTable.rows : fallbackRows;
+    const incomingRows = Math.max(1, sourceRows.length || 1);
+
+    setNutritionRows(incomingRows);
+    setNutritionCols(incomingCols);
+    setNutritionHeaders(
+      Array.from({ length: incomingCols }, (_, index) => incomingHeaders[index] ?? `Colonne ${index + 1}`),
     );
+    setNutritionTable(resizeNutritionTable(sourceRows, incomingRows, incomingCols));
     setUsageText(data.usageTips.map((row) => `${row.icon} | ${row.text}`).join("\n"));
     setReviewsText(data.reviews.map((row) => `${row.name} | ${row.rating} | ${row.date} | ${row.text}`).join("\n"));
   }, [data]);
@@ -94,15 +129,21 @@ const AdminProductEditor = () => {
   });
 
   const normalizedPayload = useMemo<AdminProductFormInput>(() => {
-    const nutrition = nutritionText
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => {
-        const [nutriment = "", per100ml = "", perPortion = ""] = line.split("|").map((part) => part.trim());
-        return { nutriment, per100ml, perPortion };
-      })
-      .filter((row) => row.nutriment && row.per100ml && row.perPortion);
+    const nutrition = nutritionTable
+      .map((row) => ({
+        nutriment: (row[0] ?? "").trim(),
+        per100ml: (row[1] ?? "").trim(),
+        perPortion: (row[2] ?? "").trim(),
+      }))
+      .filter((row) => row.nutriment || row.per100ml || row.perPortion)
+      .filter((row) => row.nutriment);
+
+    const nutritionTablePayload = {
+      headers: nutritionHeaders.map((header, index) => header.trim() || `Colonne ${index + 1}`),
+      rows: nutritionTable
+        .map((row) => row.map((cell) => cell.trim()))
+        .filter((row) => row.some((cell) => cell.length > 0)),
+    };
 
     const usageTips = usageText
       .split("\n")
@@ -138,10 +179,48 @@ const AdminProductEditor = () => {
       formats: fromLines(formatsText),
       images: fromLines(imagesText),
       nutrition,
+      nutritionTable: nutritionTablePayload,
       usageTips,
       reviews,
     };
-  }, [benefitsText, descriptionText, flavorsText, formatsText, form, imagesText, nutritionText, reviewsText, usageText]);
+  }, [benefitsText, descriptionText, flavorsText, formatsText, form, imagesText, nutritionHeaders, nutritionTable, reviewsText, usageText]);
+
+  const onNutritionRowsChange = (raw: string) => {
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) return;
+    const nextRows = Math.max(1, Math.floor(parsed));
+    setNutritionRows(nextRows);
+    setNutritionTable((prev) => resizeNutritionTable(prev, nextRows, nutritionCols));
+  };
+
+  const onNutritionColsChange = (raw: string) => {
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) return;
+    const nextCols = Math.max(1, Math.floor(parsed));
+    const generatedHeaders = createNutritionHeaders(nextCols);
+
+    setNutritionCols(nextCols);
+    setNutritionHeaders((prev) =>
+      Array.from({ length: nextCols }, (_, index) => prev[index] ?? generatedHeaders[index] ?? `Colonne ${index + 1}`),
+    );
+    setNutritionTable((prev) => resizeNutritionTable(prev, nutritionRows, nextCols));
+  };
+
+  const onNutritionHeaderChange = (colIndex: number, value: string) => {
+    setNutritionHeaders((prev) => {
+      const next = Array.from({ length: nutritionCols }, (_, index) => prev[index] ?? createNutritionHeaders(nutritionCols)[index]);
+      next[colIndex] = value;
+      return next;
+    });
+  };
+
+  const onNutritionCellChange = (rowIndex: number, colIndex: number, value: string) => {
+    setNutritionTable((prev) => {
+      const next = resizeNutritionTable(prev, nutritionRows, nutritionCols);
+      next[rowIndex][colIndex] = value;
+      return next;
+    });
+  };
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -499,8 +578,67 @@ const AdminProductEditor = () => {
 
           <div className="grid gap-4 rounded-xl border border-border bg-card p-5">
             <h2 className="font-heading text-xl font-bold text-foreground">Données structurées</h2>
-            <label className="text-sm font-medium text-foreground">Nutrition (format: Nutriment | pour100ml | parPortion)</label>
-            <textarea rows={6} value={nutritionText} onChange={(e) => setNutritionText(e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2" />
+            <div className="space-y-3 rounded-lg border border-border p-4">
+              <div className="flex flex-wrap items-end gap-3">
+                <div>
+                  <label className="text-sm font-medium text-foreground">Lignes</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={nutritionRows}
+                    onChange={(e) => onNutritionRowsChange(e.target.value)}
+                    className="mt-1 w-24 rounded-lg border border-border bg-background px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground">Colonnes</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={nutritionCols}
+                    onChange={(e) => onNutritionColsChange(e.target.value)}
+                    className="mt-1 w-24 rounded-lg border border-border bg-background px-3 py-2"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Vous pouvez nommer chaque colonne librement et ajouter autant de colonnes que nécessaire.
+                </p>
+              </div>
+
+              <div className="overflow-x-auto rounded-lg border border-border">
+                <table className="w-full min-w-[520px] border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-muted/50">
+                      {Array.from({ length: nutritionCols }).map((_, colIndex) => (
+                        <th key={colIndex} className="border border-border px-3 py-2 text-left font-medium text-foreground">
+                          <input
+                            value={nutritionHeaders[colIndex] ?? ""}
+                            onChange={(e) => onNutritionHeaderChange(colIndex, e.target.value)}
+                            placeholder={`Colonne ${colIndex + 1}`}
+                            className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm font-medium"
+                          />
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Array.from({ length: nutritionRows }).map((_, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {Array.from({ length: nutritionCols }).map((__, colIndex) => (
+                          <td key={`${rowIndex}-${colIndex}`} className="border border-border p-1.5">
+                            <input
+                              value={nutritionTable[rowIndex]?.[colIndex] ?? ""}
+                              onChange={(e) => onNutritionCellChange(rowIndex, colIndex, e.target.value)}
+                              className="w-full rounded-md border border-border bg-background px-2 py-1.5"
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
             <label className="text-sm font-medium text-foreground">Conseils (format: icon | texte)</label>
             <textarea rows={5} value={usageText} onChange={(e) => setUsageText(e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2" />

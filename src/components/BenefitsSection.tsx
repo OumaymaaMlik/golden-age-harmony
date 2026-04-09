@@ -20,7 +20,19 @@ const benefits = [
   },
 ];
 
-const BenefitsSection = () => {
+type BenefitsSectionProps = {
+  content?: {
+    title: string;
+    items: Array<{ title: string; description: string }>;
+  };
+};
+
+const BenefitsSection = ({ content }: BenefitsSectionProps) => {
+  const sectionContent = content ?? {
+    title: "Pourquoi choisir Nutriwell ?",
+    items: benefits.map((benefit) => ({ title: benefit.title, description: benefit.description })),
+  };
+
   return (
     <section id="benefits" className="relative py-28 bg-background overflow-hidden">
       {/* Biophilic leaf accents */}
@@ -45,21 +57,24 @@ const BenefitsSection = () => {
 
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-3 gap-10">
-          {benefits.map((b, i) => (
-            <ScrollReveal key={b.title} delay={i * 0.15}>
+          {sectionContent.items.map((item, i) => {
+            const benefit = benefits[i % benefits.length];
+            return (
+            <ScrollReveal key={`${item.title}-${i}`} delay={i * 0.15}>
               <div className="text-center organic-card p-8 rounded-2xl">
                 <div className="w-20 h-20 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-6">
-                  <b.icon className="text-secondary" size={32} />
+                  <benefit.icon className="text-secondary" size={32} />
                 </div>
                 <h3 className="font-heading text-xl font-bold text-foreground mb-3">
-                  {b.title}
+                  {item.title}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  {b.description}
+                  {item.description}
                 </p>
               </div>
             </ScrollReveal>
-          ))}
+            );
+          })}
         </div>
       </div>
 

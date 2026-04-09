@@ -7,7 +7,24 @@ import { fetchPublishedRecipes } from "@/lib/recipe-service";
 
 const fallbackImage = "https://images.unsplash.com/photo-1495544871167-ce0a60e35c02?w=640&h=640&fit=crop";
 
-const RecipeGrid = () => {
+type RecipeGridProps = {
+  content?: {
+    title: string;
+    subtitle: string;
+    ctaLabel: string;
+    ctaHref: string;
+  };
+};
+
+const RecipeGrid = ({ content }: RecipeGridProps) => {
+  const sectionContent = content ?? {
+    title: "Des idées pour enrichir votre alimentation",
+    subtitle:
+      "Des recettes simples et savoureuses réalisées avec les produits Nutriwell. Nourrissez votre corps avec des repas que vous aimerez vraiment.",
+    ctaLabel: "Explorer toutes les recettes",
+    ctaHref: "/recipes",
+  };
+
   const { data: recipes = [], isLoading, isError } = useQuery({
     queryKey: ["home-recipes"],
     queryFn: () => fetchPublishedRecipes(),
@@ -29,11 +46,10 @@ const RecipeGrid = () => {
         <ScrollReveal>
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Des idées pour enrichir votre alimentation
+              {sectionContent.title}
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Des recettes simples et savoureuses réalisées avec les produits Nutriwell.
-              Nourrissez votre corps avec des repas que vous aimerez vraiment.
+              {sectionContent.subtitle}
             </p>
           </div>
         </ScrollReveal>
@@ -73,10 +89,10 @@ const RecipeGrid = () => {
         <ScrollReveal>
           <div className="text-center">
             <Link
-              to="/recipes"
+              to={sectionContent.ctaHref}
               className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-8 py-3.5 rounded-full font-semibold hover:bg-secondary/90 hover:shadow-md transition-all duration-200 text-[15px]"
             >
-              Explorer toutes les recettes
+              {sectionContent.ctaLabel}
             </Link>
           </div>
         </ScrollReveal>

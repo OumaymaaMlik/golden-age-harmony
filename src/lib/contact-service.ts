@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { ApiError, apiRequest } from "@/lib/api";
 
 export type ContactReportStatus = "nouveau" | "traite" | "archive";
 
@@ -51,26 +51,22 @@ const sanitizeFileName = (name: string) =>
     .replace(/[^a-z0-9._-]/g, "");
 
 export const uploadContactAttachment = async (file: File, email: string) => {
-  const safeEmail = clean(email).toLowerCase().replace(/[^a-z0-9@._-]/g, "") || "anonymous";
-  const timestamp = Date.now();
-  const safeFileName = sanitizeFileName(file.name || `attachment-${timestamp}`);
-  const path = `${safeEmail}/${timestamp}-${safeFileName}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from("contact-reports")
-    .upload(path, file, { upsert: false });
-
-  if (uploadError) throw uploadError;
-  return path;
+  const formData = new FormData();
+  formData.append("email", clean(email).toLowerCase().replace(/[^a-z0-9@._-]/g, "") || "anonymous");
+  formData.append("file", file, sanitizeFileName(file.name || `attachment-${Date.now()}`));
+  const response = await apiRequest<{ path: string; url?: string }>("uploads/contact-attachment", {
+    method: "POST",
+    body: formData,
+  });
+  return response.path || response.url || "";
 };
 
 export const getContactAttachmentSignedUrl = async (path: string) => {
-  const { data, error } = await supabase.storage
-    .from("contact-reports")
-    .createSignedUrl(path, 60 * 10);
-
-  if (error) throw error;
-  return data.signedUrl;
+  const response = await apiRequest<{ url: string }>("admin/contact-reports/attachment", {
+    method: "GET",
+    query: { path },
+  });
+  return response.url;
 };
 
 export const createContactReport = async (input: ContactReportFormInput) => {
@@ -111,41 +107,30 @@ export const createContactReport = async (input: ContactReportFormInput) => {
   }
   if (input.attachmentUrl) payload.attachment_url = input.attachmentUrl;
 
-  const firstTry = await supabase.from("contact_reports").insert(payload);
-  if (!firstTry.error) return;
-
-  const secondTry = await supabase.from("contact_reports").insert(requiredPayload);
-  if (!secondTry.error) return;
-
-  const details = [secondTry.error.message, secondTry.error.details, secondTry.error.hint]
-    .filter(Boolean)
-    .join(" | ");
-
-  throw new Error(details || "Insertion contact_reports echouee.");
+  try {
+    await apiRequest<{ id: string }>("contact-reports", { method: "POST", body: payload });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 400) {
+      await apiRequest<{ id: string }>("contact-reports", { method: "POST", body: requiredPayload });
+      return;
+    }
+    throw error;
+  }
 };
 
 export const fetchAdminContactReports = async (): Promise<ContactReportItem[]> => {
-  const { data, error } = await supabase
-    .from("contact_reports")
-    .select("id, subject, email, last_name, first_name, status, created_at")
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return (data ?? []) as ContactReportItem[];
+  const response = await apiRequest<{ reports: ContactReportItem[] }>("admin/contact-reports", { method: "GET" });
+  return response.reports ?? [];
 };
 
 export const fetchAdminContactReportById = async (id: string): Promise<ContactReportDetail> => {
-  const { data, error } = await supabase
-    .from("contact_reports")
-    .select("id, subject, email, last_name, first_name, status, created_at, message, profile_type, civility, address, postal_code, city, country, phone_prefix, phone_number, attachment_url")
-    .eq("id", id)
-    .single();
-
-  if (error) throw error;
-  return data as ContactReportDetail;
+  const response = await apiRequest<{ report: ContactReportDetail }>(`admin/contact-reports/${id}`, { method: "GET" });
+  return response.report;
 };
 
 export const updateContactReportStatus = async (id: string, status: ContactReportStatus) => {
-  const { error } = await supabase.from("contact_reports").update({ status }).eq("id", id);
-  if (error) throw error;
+  await apiRequest<{ success: boolean }>(`admin/contact-reports/${id}`, {
+    method: "PATCH",
+    body: { status },
+  });
 };

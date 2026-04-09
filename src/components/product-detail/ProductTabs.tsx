@@ -9,6 +9,20 @@ interface Props {
   product: Product;
 }
 
+const normalizeNutritionTable = (product: Product) => {
+  const headers = product.nutritionTable?.headers?.map((x) => x?.trim()).filter(Boolean) ?? [];
+  const rows = product.nutritionTable?.rows ?? [];
+
+  if (headers.length > 0) {
+    return { headers, rows };
+  }
+
+  return {
+    headers: ["Nutriment", "Pour 100ml", "Par portion"],
+    rows: product.nutrition.map((row) => [row.nutriment, row.per100ml, row.perPortion]),
+  };
+};
+
 const StarRow = ({ rating }: { rating: number }) => (
   <div className="flex gap-0.5">
     {[1, 2, 3, 4, 5].map((i) => (
@@ -17,8 +31,11 @@ const StarRow = ({ rating }: { rating: number }) => (
   </div>
 );
 
-const ProductTabs = ({ product }: Props) => (
-  <section className="bg-background pb-12">
+const ProductTabs = ({ product }: Props) => {
+  const nutritionTable = normalizeNutritionTable(product);
+
+  return (
+    <section className="bg-background pb-12">
     <div className="container mx-auto px-4 md:px-6 max-w-4xl">
       <ScrollReveal>
         <Tabs defaultValue="description" className="w-full">
@@ -51,21 +68,31 @@ const ProductTabs = ({ product }: Props) => (
           </TabsContent>
 
           <TabsContent value="nutrition" className="pt-6 animate-fade-in">
-            <div className="rounded-xl border border-border overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="rounded-xl border border-border overflow-hidden overflow-x-auto">
+              <table className="w-full text-sm min-w-[520px]">
                 <thead>
                   <tr className="bg-muted">
-                    <th className="text-left py-3 px-4 font-semibold text-foreground">Nutriment</th>
-                    <th className="text-right py-3 px-4 font-semibold text-foreground">Pour 100ml</th>
-                    <th className="text-right py-3 px-4 font-semibold text-foreground">Par portion</th>
+                    {nutritionTable.headers.map((header, headerIndex) => (
+                      <th
+                        key={`${header}-${headerIndex}`}
+                        className={`py-3 px-4 font-semibold text-foreground ${headerIndex === 0 ? "text-left" : "text-right"}`}
+                      >
+                        {header}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {product.nutrition.map((row, i) => (
-                    <tr key={row.nutriment} className={i % 2 === 0 ? "bg-accent/10" : "bg-background"}>
-                      <td className="py-2.5 px-4 text-foreground">{row.nutriment}</td>
-                      <td className="py-2.5 px-4 text-right text-muted-foreground">{row.per100ml}</td>
-                      <td className="py-2.5 px-4 text-right text-muted-foreground">{row.perPortion}</td>
+                  {nutritionTable.rows.map((row, i) => (
+                    <tr key={`nutrition-row-${i}`} className={i % 2 === 0 ? "bg-accent/10" : "bg-background"}>
+                      {nutritionTable.headers.map((_, colIndex) => (
+                        <td
+                          key={`nutrition-cell-${i}-${colIndex}`}
+                          className={`py-2.5 px-4 ${colIndex === 0 ? "text-foreground" : "text-right text-muted-foreground"}`}
+                        >
+                          {row[colIndex] ?? ""}
+                        </td>
+                      ))}
                     </tr>
                   ))}
                 </tbody>
@@ -119,6 +146,7 @@ const ProductTabs = ({ product }: Props) => (
       </ScrollReveal>
     </div>
   </section>
-);
+  );
+};
 
 export default ProductTabs;

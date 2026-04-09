@@ -1,4 +1,9 @@
-import { supabase } from "@/lib/supabase";
+import { ApiError, apiRequest } from "@/lib/api";
+
+export interface NutritionTableInput {
+  headers: string[];
+  rows: string[][];
+}
 
 export interface RecipeListItem {
   id: string;
@@ -26,6 +31,7 @@ export interface RecipeDetail {
   steps: string[];
   tips: string[];
   nutrition: string[];
+  nutritionTable?: NutritionTableInput;
 }
 
 export interface RecipeFormInput {
@@ -40,124 +46,43 @@ export interface RecipeFormInput {
   steps: string[];
   tips: string[];
   nutrition: string[];
+  nutritionTable?: NutritionTableInput;
   isPublished: boolean;
 }
 
 const clean = (value: string) => value.trim();
 
-const normalizeSupabaseError = (error: unknown) => {
-  const e = error as {
-    code?: string;
-    message?: string;
-    details?: string;
-    hint?: string;
-  };
-
-  const code = e?.code ?? "";
-  const message = e?.message ?? "";
-  const details = e?.details ?? "";
-  const hint = e?.hint ?? "";
-  const full = [message, details, hint].filter(Boolean).join(" | ");
-
-  if (code === "42703" || /column .* does not exist/i.test(full)) {
-    return new Error(
-      `Schema recettes incompatible avec le frontend. Executez le script supabase/step6_recipes_contact.sql. Détail: ${full || code}`,
-    );
-  }
-
-  if (code === "42501" || /row-level security|permission denied/i.test(full)) {
-    return new Error(
-      `Droits insuffisants pour enregistrer la recette (RLS/Admin). Verifiez que ce compte est admin_users. Détail: ${full || code}`,
-    );
-  }
-
-  if (code === "23505" || /duplicate key|recipes_slug_key/i.test(full)) {
-    return new Error("Ce slug existe déjà. Utilisez un slug unique.");
-  }
-
-  if (code === "23514" || /recipes_slug_format/i.test(full)) {
-    return new Error("Slug invalide. Utilisez uniquement a-z, 0-9 et des tirets.");
-  }
-
-  return new Error(full || "Erreur Supabase inconnue lors de l'enregistrement de la recette.");
+const normalizeApiError = (error: unknown) => {
+  if (!(error instanceof ApiError)) return error as Error;
+  if (error.status === 409) return new Error("recipes_slug_key");
+  if (error.status === 422) return new Error("recipes_slug_format");
+  return new Error(error.message || "Erreur API inconnue lors de l'enregistrement de la recette.");
 };
 
 export const fetchPublishedRecipes = async (category?: string): Promise<RecipeListItem[]> => {
-  let query = supabase
-    .from("recipes")
-    .select("id, slug, title, category, summary, prep_time, servings, image, is_published, updated_at")
-    .eq("is_published", true)
-    .order("updated_at", { ascending: false });
-
-  if (category && category !== "Toutes") {
-    query = query.eq("category", category);
-  }
-
-  const { data, error } = await query;
-  if (error) throw error;
-  return data ?? [];
+  const response = await apiRequest<{ recipes: RecipeListItem[] }>("recipes", {
+    method: "GET",
+    query: { published: true, category: category && category !== "Toutes" ? category : undefined },
+  });
+  return response.recipes ?? [];
 };
 
 export const fetchPublishedRecipeBySlug = async (slug: string): Promise<RecipeDetail | null> => {
-  const { data, error } = await supabase
-    .from("recipes")
-    .select("id, slug, title, category, summary, prep_time, servings, image, ingredients, steps, tips, nutrition")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .maybeSingle();
-
-  if (error) throw error;
-  if (!data) return null;
-
-  return {
-    id: data.id,
-    slug: data.slug,
-    title: data.title,
-    category: data.category,
-    summary: data.summary,
-    prepTime: data.prep_time,
-    servings: data.servings,
-    image: data.image ?? "",
-    ingredients: data.ingredients ?? [],
-    steps: data.steps ?? [],
-    tips: data.tips ?? [],
-    nutrition: data.nutrition ?? [],
-  };
+  const response = await apiRequest<{ recipe: RecipeDetail | null }>(`recipes/${slug}`, {
+    method: "GET",
+    query: { published: true },
+  });
+  return response.recipe;
 };
 
 export const fetchAdminRecipes = async (): Promise<RecipeListItem[]> => {
-  const { data, error } = await supabase
-    .from("recipes")
-    .select("id, slug, title, category, summary, prep_time, servings, image, is_published, updated_at")
-    .order("updated_at", { ascending: false });
-
-  if (error) throw error;
-  return data ?? [];
+  const response = await apiRequest<{ recipes: RecipeListItem[] }>("admin/recipes", { method: "GET" });
+  return response.recipes ?? [];
 };
 
 export const fetchAdminRecipeById = async (recipeId: string): Promise<RecipeFormInput> => {
-  const { data, error } = await supabase
-    .from("recipes")
-    .select("slug, title, category, summary, prep_time, servings, image, ingredients, steps, tips, nutrition, is_published")
-    .eq("id", recipeId)
-    .single();
-
-  if (error) throw error;
-
-  return {
-    slug: data.slug,
-    title: data.title,
-    category: data.category,
-    summary: data.summary,
-    prepTime: data.prep_time,
-    servings: data.servings,
-    image: data.image ?? "",
-    ingredients: data.ingredients ?? [],
-    steps: data.steps ?? [],
-    tips: data.tips ?? [],
-    nutrition: data.nutrition ?? [],
-    isPublished: Boolean(data.is_published),
-  };
+  const response = await apiRequest<{ recipe: RecipeFormInput }>(`admin/recipes/${recipeId}`, { method: "GET" });
+  return response.recipe;
 };
 
 export const saveAdminRecipe = async (input: RecipeFormInput, recipeId?: string) => {
@@ -173,38 +98,31 @@ export const saveAdminRecipe = async (input: RecipeFormInput, recipeId?: string)
     steps: input.steps.map(clean).filter(Boolean),
     tips: input.tips.map(clean).filter(Boolean),
     nutrition: input.nutrition.map(clean).filter(Boolean),
+    nutritionTable: input.nutritionTable,
     is_published: input.isPublished,
   };
 
-  if (recipeId) {
-    const { data, error } = await supabase
-      .from("recipes")
-      .update(payload)
-      .eq("id", recipeId)
-      .select("id")
-      .single();
-
-    if (error) throw normalizeSupabaseError(error);
-    return data.id as string;
+  try {
+    if (recipeId) {
+      const response = await apiRequest<{ id: string }>(`admin/recipes/${recipeId}`, { method: "PUT", body: payload });
+      return response.id;
+    }
+    const response = await apiRequest<{ id: string }>("admin/recipes", { method: "POST", body: payload });
+    return response.id;
+  } catch (error) {
+    throw normalizeApiError(error);
   }
-
-  const { data, error } = await supabase.from("recipes").insert(payload).select("id").single();
-  if (error) throw normalizeSupabaseError(error);
-  return data.id as string;
 };
 
 export const updateRecipePublishStatus = async (recipeId: string, nextStatus: boolean) => {
-  const { error } = await supabase
-    .from("recipes")
-    .update({ is_published: nextStatus })
-    .eq("id", recipeId);
-
-  if (error) throw error;
+  await apiRequest<{ success: boolean }>(`admin/recipes/${recipeId}/publish`, {
+    method: "PATCH",
+    body: { isPublished: nextStatus },
+  });
 };
 
 export const deleteRecipe = async (recipeId: string) => {
-  const { error } = await supabase.from("recipes").delete().eq("id", recipeId);
-  if (error) throw error;
+  await apiRequest<{ success: boolean }>(`admin/recipes/${recipeId}`, { method: "DELETE" });
 };
 
 const sanitizeFileName = (name: string) =>
@@ -214,17 +132,12 @@ const sanitizeFileName = (name: string) =>
     .replace(/[^a-z0-9._-]/g, "");
 
 export const uploadRecipeImage = async (file: File, recipeSlug: string) => {
-  const safeSlug = clean(recipeSlug) || "draft-recipe";
-  const timestamp = Date.now();
-  const safeFileName = sanitizeFileName(file.name || `recipe-${timestamp}.jpg`);
-  const path = `${safeSlug}/${timestamp}-${safeFileName}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from("recipes")
-    .upload(path, file, { upsert: false });
-
-  if (uploadError) throw uploadError;
-
-  const { data } = supabase.storage.from("recipes").getPublicUrl(path);
-  return data.publicUrl;
+  const formData = new FormData();
+  formData.append("slug", clean(recipeSlug) || "draft-recipe");
+  formData.append("file", file, sanitizeFileName(file.name || `recipe-${Date.now()}.jpg`));
+  const response = await apiRequest<{ url: string }>("admin/uploads/recipe-image", {
+    method: "POST",
+    body: formData,
+  });
+  return response.url;
 };

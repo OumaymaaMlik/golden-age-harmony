@@ -4,7 +4,23 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProductCards } from "@/lib/product-service";
 
-const ProductHighlight = () => {
+type ProductHighlightProps = {
+  content?: {
+    title: string;
+    subtitle: string;
+    ctaLabel: string;
+    ctaHref: string;
+  };
+};
+
+const ProductHighlight = ({ content }: ProductHighlightProps) => {
+  const sectionContent = content ?? {
+    title: "Une gamme pensée pour chaque besoin",
+    subtitle: "Découvrez nos produits publiés depuis votre dashboard admin.",
+    ctaLabel: "Voir tous les produits",
+    ctaHref: "/products",
+  };
+
   const { data: products = [], isLoading, isError } = useQuery({
     queryKey: ["home-products"],
     queryFn: () =>
@@ -36,10 +52,10 @@ const ProductHighlight = () => {
         <ScrollReveal>
           <div className="text-center max-w-2xl mx-auto mb-14">
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Une gamme pensée pour chaque besoin
+              {sectionContent.title}
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Découvrez nos produits publiés depuis votre dashboard admin.
+              {sectionContent.subtitle}
             </p>
           </div>
         </ScrollReveal>
@@ -72,10 +88,10 @@ const ProductHighlight = () => {
 
         <div className="text-center">
           <Link
-            to="/products"
+            to={sectionContent.ctaHref}
             className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-8 py-3.5 rounded-full font-semibold hover:bg-secondary/90 hover:shadow-md transition-all duration-200 text-[15px]"
           >
-            Voir tous les produits
+            {sectionContent.ctaLabel}
           </Link>
         </div>
       </div>

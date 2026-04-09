@@ -17,6 +17,7 @@ export interface Product {
   description: string[];
   benefits: string[];
   nutrition: { nutriment: string; per100ml: string; perPortion: string }[];
+  nutritionTable?: { headers: string[]; rows: string[][] };
   usageTips: { icon: string; text: string }[];
   reviews: { name: string; rating: number; text: string; date: string }[];
   texture: string;

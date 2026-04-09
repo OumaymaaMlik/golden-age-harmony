@@ -8,6 +8,7 @@ import Products from "./pages/Products.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import About from "./pages/About.tsx";
+import Conseils from "./pages/Conseils.tsx";
 import Recipes from "./pages/Recipes.tsx";
 import RecipeDetail from "./pages/RecipeDetail.tsx";
 import StoreLocator from "./pages/StoreLocator.tsx";
@@ -18,6 +19,7 @@ import AdminProductEditor from "./pages/admin/AdminProductEditor.tsx";
 import AdminRecipes from "./pages/admin/AdminRecipes.tsx";
 import AdminRecipeEditor from "./pages/admin/AdminRecipeEditor.tsx";
 import AdminContactReports from "./pages/admin/AdminContactReports.tsx";
+import AdminContentEditor from "./pages/admin/AdminContentEditor.tsx";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
+          <Route path="/conseils" element={<Conseils />} />
           <Route path="/recipes" element={<Recipes />} />
           <Route path="/recipes/:slug" element={<RecipeDetail />} />
           <Route path="/products" element={<Products />} />
@@ -46,6 +49,7 @@ const App = () => (
             <Route path="/admin/recipes/new" element={<AdminRecipeEditor />} />
             <Route path="/admin/recipes/:id/edit" element={<AdminRecipeEditor />} />
             <Route path="/admin/contact-reports" element={<AdminContactReports />} />
+            <Route path="/admin/content" element={<AdminContentEditor />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

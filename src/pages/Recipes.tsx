@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Clock, Users, ChefHat, Sparkles, Heart, Award, Leaf } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WaveDivider from "@/components/WaveDivider";
 import ScrollReveal from "@/components/ScrollReveal";
 import { fetchPublishedRecipes } from "@/lib/recipe-service";
+import { RecipesPageContent, fetchPublicPageContent } from "@/lib/content-service";
 
 import heroImg from "@/assets/recipes-hero.jpg";
 import smoothieImg from "@/assets/recipe-smoothie.jpg";
@@ -17,6 +19,24 @@ import salmonImg from "@/assets/recipe-salmon.jpg";
 import toastImg from "@/assets/recipe-toast.jpg";
 
 const filters = ["Toutes", "Petit-déjeuner", "Déjeuner", "Snacks", "Boissons"];
+
+const defaultRecipesContent: RecipesPageContent = {
+  hero: {
+    title: "Nos Recettes et Astuces",
+    subtitle: "Des idées gourmandes et nutritives pour prendre soin de vous au quotidien.",
+    image: heroImg,
+  },
+  benefitsStrip: [
+    { text: "Recettes validées par nos nutritionnistes" },
+    { text: "Préparation rapide, moins de 30 min" },
+    { text: "Adaptées aux besoins des seniors" },
+  ],
+  promos: [
+    { title: "Boostez vos recettes", desc: "Ajoutez Nutriwell Boisson Fruitée à vos smoothies pour un apport protéiné complet.", cta: "En savoir plus →" },
+    { title: "Astuce bien-être", desc: "Un petit-déjeuner riche en protéines aide à maintenir votre énergie toute la matinée.", cta: "En savoir plus →" },
+    { title: "Le saviez-vous ?", desc: "Les fibres alimentaires favorisent une digestion saine et un confort intestinal durable.", cta: "En savoir plus →" },
+  ],
+};
 
 interface RecipeCard {
   type: "recipe";
@@ -33,6 +53,7 @@ interface PromoCard {
   icon: typeof Sparkles;
   title: string;
   desc: string;
+  cta: string;
   color: "primary" | "secondary" | "accent";
 }
 
@@ -56,6 +77,13 @@ const Recipes = () => {
   const [recipes, setRecipes] = useState<RecipeCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { data: pageContent } = useQuery({
+    queryKey: ["page-content", "recipes"],
+    queryFn: () => fetchPublicPageContent("recipes", defaultRecipesContent),
+  });
+
+  const content = pageContent ?? defaultRecipesContent;
 
   // Fetch recipes from backend
   useEffect(() => {
@@ -90,9 +118,9 @@ const Recipes = () => {
 
   // Promo cards (static content)
   const promoCards: PromoCard[] = [
-    { type: "promo", icon: Sparkles, title: "Boostez vos recettes", desc: "Ajoutez Nutriwell Boisson Fruitée à vos smoothies pour un apport protéiné complet.", color: "primary" },
-    { type: "promo", icon: Heart, title: "Astuce bien-être", desc: "Un petit-déjeuner riche en protéines aide à maintenir votre énergie toute la matinée.", color: "secondary" },
-    { type: "promo", icon: Leaf, title: "Le saviez-vous ?", desc: "Les fibres alimentaires favorisent une digestion saine et un confort intestinal durable.", color: "accent" },
+    { type: "promo", icon: Sparkles, title: content.promos[0]?.title ?? "", desc: content.promos[0]?.desc ?? "", cta: content.promos[0]?.cta ?? "En savoir plus →", color: "primary" },
+    { type: "promo", icon: Heart, title: content.promos[1]?.title ?? "", desc: content.promos[1]?.desc ?? "", cta: content.promos[1]?.cta ?? "En savoir plus →", color: "secondary" },
+    { type: "promo", icon: Leaf, title: content.promos[2]?.title ?? "", desc: content.promos[2]?.desc ?? "", cta: content.promos[2]?.cta ?? "En savoir plus →", color: "accent" },
   ];
 
   // Combine recipes and promos for display
@@ -124,7 +152,7 @@ const Recipes = () => {
       {/* ── Hero ── */}
       <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden pt-16">
         <div className="absolute inset-0">
-          <img src={heroImg} alt="Table de recettes saines" className="w-full h-full object-cover" width={1920} height={800} />
+          <img src={content.hero.image || heroImg} alt="Table de recettes saines" className="w-full h-full object-cover" width={1920} height={800} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, hsla(147,100%,37%,0.5) 0%, hsla(196,100%,50%,0.5) 100%)" }} />
         </div>
 
@@ -141,7 +169,7 @@ const Recipes = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4"
           >
-            Nos Recettes et Astuces
+            {content.hero.title}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -149,7 +177,7 @@ const Recipes = () => {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="text-lg text-primary-foreground/90 max-w-xl mx-auto"
           >
-            Des idées gourmandes et nutritives pour prendre soin de vous au quotidien.
+            {content.hero.subtitle}
           </motion.p>
         </div>
 
@@ -241,7 +269,7 @@ const Recipes = () => {
                         {item.desc}
                       </p>
                       <a href="#" className="text-primary-foreground text-sm font-semibold underline underline-offset-4">
-                        En savoir plus →
+                        {item.cta}
                       </a>
                     </div>
                   </ScrollReveal>
@@ -266,7 +294,7 @@ const Recipes = () => {
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                       <b.icon className="text-primary" size={22} />
                     </div>
-                    <p className="text-sm font-semibold text-foreground">{b.text}</p>
+                    <p className="text-sm font-semibold text-foreground">{content.benefitsStrip[i]?.text ?? b.text}</p>
                   </div>
                 </ScrollReveal>
               ))}

@@ -5,13 +5,31 @@ import infoCard1 from "@/assets/info-card-1.jpg";
 import infoCard2 from "@/assets/info-card-2.jpg";
 import infoCard3 from "@/assets/info-card-3.jpg";
 
-const cards = [
-  { image: infoCard1, title: "Bien vieillir au quotidien", link: "#" },
-  { image: infoCard2, title: "Nutrition simplifiée", link: "#" },
-  { image: infoCard3, title: "Le plaisir dans chaque repas", link: "#" },
-];
+type InfoCardsSectionProps = {
+  content?: {
+    title: string;
+    subtitle: string;
+    cards: Array<{ title: string; image: string; linkLabel: string; linkHref: string }>;
+    ctaLabel: string;
+    ctaHref: string;
+  };
+};
 
-const InfoCardsSection = () => {
+const InfoCardsSection = ({ content }: InfoCardsSectionProps) => {
+  const sectionContent = content ?? {
+    title: "Votre parcours bien-être commence ici",
+    subtitle:
+      "Découvrez des conseils validés par des experts pour vous sentir au meilleur de votre forme — de l'activité physique à l'alimentation.",
+    cards: [
+      { title: "Bien vieillir au quotidien", image: infoCard1, linkLabel: "En savoir plus", linkHref: "#" },
+      { title: "Nutrition simplifiée", image: infoCard2, linkLabel: "En savoir plus", linkHref: "#" },
+      { title: "Le plaisir dans chaque repas", image: infoCard3, linkLabel: "En savoir plus", linkHref: "#" },
+    ],
+    ctaLabel: "Découvrir nos conseils",
+    ctaHref: "/conseils",
+  };
+  const ctaHref = sectionContent.ctaHref && sectionContent.ctaHref !== "#" ? sectionContent.ctaHref : "/conseils";
+
   return (
     <section id="info" className="relative py-28 bg-background overflow-hidden">
       {/* Biophilic leaf accent */}
@@ -26,16 +44,16 @@ const InfoCardsSection = () => {
         <ScrollReveal>
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Votre parcours bien-être commence ici
+              {sectionContent.title}
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Découvrez des conseils validés par des experts pour vous sentir au meilleur de votre forme — de l'activité physique à l'alimentation.
+              {sectionContent.subtitle}
             </p>
           </div>
         </ScrollReveal>
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
-          {cards.map((card, i) => (
+          {sectionContent.cards.map((card, i) => (
             <ScrollReveal key={card.title} delay={i * 0.15}>
               <div className="group organic-card overflow-hidden">
                 <div className="aspect-[5/4] overflow-hidden">
@@ -53,10 +71,10 @@ const InfoCardsSection = () => {
                     {card.title}
                   </h3>
                   <a
-                    href={card.link}
+                    href={card.linkHref}
                     className="inline-flex items-center gap-1.5 text-secondary font-semibold text-sm hover:gap-3 transition-all duration-200"
                   >
-                    En savoir plus <ArrowRight size={16} />
+                    {card.linkLabel} <ArrowRight size={16} />
                   </a>
                 </div>
               </div>
@@ -67,10 +85,10 @@ const InfoCardsSection = () => {
         <ScrollReveal>
           <div className="text-center">
             <a
-              href="#"
+              href={ctaHref}
               className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-8 py-3.5 rounded-full font-semibold hover:bg-secondary/90 hover:shadow-md transition-all duration-200 text-[15px]"
             >
-              Découvrir nos conseils
+              {sectionContent.ctaLabel}
             </a>
           </div>
         </ScrollReveal>
