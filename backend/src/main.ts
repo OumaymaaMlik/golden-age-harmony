@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import { join } from "path";
 import { AppModule } from "./app.module";
 import { AuthService } from "./auth/auth.service";
+import { ensureDatabaseReady } from "./common/database-bootstrap";
 
 const parseAllowedOrigins = () => {
   const raw = process.env.FRONTEND_ORIGIN ?? "http://localhost:5173,http://localhost:8080";
@@ -18,6 +19,8 @@ const parseAllowedOrigins = () => {
 };
 
 async function bootstrap() {
+  await ensureDatabaseReady();
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const authService = app.get(AuthService);
   await authService.ensureAdmin();
