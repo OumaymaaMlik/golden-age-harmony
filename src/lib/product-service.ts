@@ -31,7 +31,7 @@ export const fetchProductCards = async (filters: {
   activeRegime?: string;
 }): Promise<ProductCardItem[]> => {
   const response = await apiRequest<{
-    products: Array<ProductCardItem & { flavorsLabel?: string; flavors?: string[]; flavorCount?: number }>;
+    products: Array<Omit<ProductCardItem, 'flavors'> & { flavorsLabel?: string; flavors?: string | string[]; flavorCount?: number }>;
   }>("products", {
     method: "GET",
     query: {
